@@ -36,11 +36,11 @@ void read_tags(std::ifstream& fin, std::unordered_map<char, std::string>* tags) 
 }
 
 /**
- * @brief Print the array
+ * @brief Print the dimensions
  *
  * @param dimensions the array to print
  */
-void print_array(std::vector<int>& dimensions) {
+void print_dimensions(std::vector<int>& dimensions) {
   for (int i = 0; i < dimensions.size(); i++) {
     std::cout << dimensions[i] << " ";
   }
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
   std::vector<int> dimensions;
   read_dimensions(fin, &dimensions);
 
-  print_array(dimensions);
+  print_dimensions(dimensions);
   
   std::unordered_map<char, std::string> tags;
   read_tags(fin, &tags);
