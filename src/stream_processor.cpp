@@ -44,5 +44,39 @@ void StreamProcessor::ReadCofiguration(){
 }
 
 void StreamProcessor::ReadSlices(){
+    std::vector<std::vector<char>> currentSlice;
+    std::string line;
+
+    while (std::getline(myFin, line)) { // Read until the end of the file
+        if (line.empty()) {
+            // If the line is empty, add the current slice to mySlices and start a new slice
+            if (!currentSlice.empty()) {
+                mySlices.push_back(currentSlice);
+                currentSlice.clear();
+            }
+        } else {
+            // If the line is not empty, add it to the current slice
+            std::vector<char> row(line.begin(), line.end());
+            currentSlice.push_back(row);
+        }
+    }
     
+    // If there's any remaining data in currentSlice, add it to mySlices
+    if (!currentSlice.empty()) {
+        mySlices.push_back(currentSlice);
+    }
+
+    myFin.close();
+
+    // Print to verify
+    for (const auto &slice : mySlices) {
+        std::cout << "Slice:\n";
+        for (const auto &row : slice) {
+            for (char ch : row) {
+                std::cout << ch;
+            }
+            std::cout << '\n';
+        }
+        std::cout << '\n';
+    }
 }
