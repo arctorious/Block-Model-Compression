@@ -5,3 +5,7 @@ Compression::Compression(std::vector<std::vector<std::vector<char>>> *Slices,
                          Dimensions *Dimensions) : mySlices(Slices),
                                                    myTagTable(TagTable),
                                                    myDimensions(Dimensions){};
+
+void Compression::Compress(){
+
+}
