@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "stream_processor.h"
 
 StreamProcessor::StreamProcessor(std::string fileName): myFin(fileName),
@@ -34,6 +35,9 @@ void StreamProcessor::ReadConfiguration(){
     }
 
     while (std::getline(myFin, line)) { // Read Tags
+        if (line.find_first_not_of(" \t\r\n") == std::string::npos) { // Going to read slices now
+            break;
+        }
         std::stringstream ss(line);
         std::string token;
         std::getline(ss, token, ',');
@@ -44,7 +48,6 @@ void StreamProcessor::ReadConfiguration(){
         // Print to verify
         std::cout << "Key: " << key << ", Value: " << token << "\n";
     }
-
     ReadSlices();
 }
 
@@ -53,7 +56,7 @@ void StreamProcessor::ReadSlices(){
     std::string line;
 
     while (std::getline(myFin, line)) { // Read until the end of the file
-        if (line.empty()) {
+        if (line.find_first_not_of(" \t\r\n") == std::string::npos) {
             // If the line is empty, add the current slice to mySlices and start a new slice
             if (!currentSlice.empty()) {
                 mySlices.push_back(currentSlice);
