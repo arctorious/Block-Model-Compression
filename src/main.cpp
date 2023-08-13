@@ -29,8 +29,8 @@ void print_array(std::vector<int>& dimensions) {
   std::cout << std::endl;
 }
 
-int main() {
-  std::ifstream fin("input.txt");
+int main(int argc, char *argv[]) {
+  std::ifstream fin(argv[1]);
 
   std::vector<int> dimensions;
   read_dimensions(fin, &dimensions);
