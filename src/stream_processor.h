@@ -19,10 +19,10 @@ public:
     /**
      * @brief Constructs a StreamProcessor object.
      * 
-     * @param fin the input file stream
+     * @param file the input file name as a string
      * Initializes the StreamProcessor with default values.
      */
-    StreamProcessor(std::ifstream file);
+    StreamProcessor(std::string file);
 
     /**
      * @brief Reads the configuration from a specified source.
@@ -39,8 +39,8 @@ public:
     void ReadSlices();
 
 private:
+    std::ifstream myFin;      ///< Input file stream for reading data.  
     Compression myCompressor; ///< Object for handling compression.
-    std::ifstream myFin;      ///< Input file stream for reading data.
     std::vector<std::vector<std::vector<char>>> mySlices; ///< Storage for slices data.
     std::unordered_map<char, std::string> myTagTable; ///< Table for mapping tags.
     Dimensions myDimensions; ///< Object for storing dimensions.

@@ -1,12 +1,16 @@
+#include <iostream>
 #include "stream_processor.h"
 
-void StreamProcessor::StreamProcessor(std::ifstream file){
-    myFin = file;
-    myCompressor = new Compression(&mySlices, &myTagTable, &myDimensions);
-    ReadCofiguration();
+StreamProcessor::StreamProcessor(std::string fileName): myFin(fileName),
+                                                        myCompressor(&mySlices, &myTagTable, &myDimensions){
+    if (!myFin) {
+        std::cerr << "Error opening input file." << std::endl;
+        return;
+    }
+    ReadConfiguration();
 }
 
-void StreamProcessor::ReadCofiguration(){
+void StreamProcessor::ReadConfiguration(){
 
     std::string line;
     if (std::getline(myFin, line)) { // Read dimensions
@@ -29,13 +33,13 @@ void StreamProcessor::ReadCofiguration(){
         std::cout << "z_parent: " << myDimensions.z_parent << "\n";
     }
 
-    while (std::getline(fin, line)) { // Read Tags
+    while (std::getline(myFin, line)) { // Read Tags
         std::stringstream ss(line);
         std::string token;
         std::getline(ss, token, ',');
         char key = token[0];
         std::getline(ss, token, ',');
-        myTagTable->insert({key, token});
+        myTagTable.insert({key, token});
 
         // Print to verify
         std::cout << "Key: " << key << ", Value: " << token << "\n";
