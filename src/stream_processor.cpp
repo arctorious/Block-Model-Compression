@@ -41,6 +41,7 @@ void StreamProcessor::ReadCofiguration(){
         std::cout << "Key: " << key << ", Value: " << token << "\n";
     }
 
+    ReadSlices();
 }
 
 void StreamProcessor::ReadSlices(){
@@ -53,6 +54,14 @@ void StreamProcessor::ReadSlices(){
             if (!currentSlice.empty()) {
                 mySlices.push_back(currentSlice);
                 currentSlice.clear();
+                numSlices++;
+            }
+            // Run the compression algorithm if we have reached maximum number of slices
+            if (numSlices == myDimensions.z_parent){
+                myCompressor.Compress();
+                mySlices.clear();
+                currentSlice.clear();
+                numSlices = 0;
             }
         } else {
             // If the line is not empty, add it to the current slice

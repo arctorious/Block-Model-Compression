@@ -18,10 +18,11 @@ class StreamProcessor
 public:
     /**
      * @brief Constructs a StreamProcessor object.
-     *
+     * 
+     * @param fin the input file stream
      * Initializes the StreamProcessor with default values.
      */
-    StreamProcessor();
+    StreamProcessor(std::ifstream file);
 
     /**
      * @brief Reads the configuration from a specified source.
@@ -43,4 +44,5 @@ private:
     std::vector<std::vector<std::vector<char>>> mySlices; ///< Storage for slices data.
     std::unordered_map<char, std::string> myTagTable; ///< Table for mapping tags.
     Dimensions myDimensions; ///< Object for storing dimensions.
+    int numSlices = 0;  ///< Integer for keeping track of the number of slices read.
 };
