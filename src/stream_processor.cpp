@@ -65,6 +65,7 @@ void StreamProcessor::ReadSlices(){
             }
             // Run the compression algorithm if we have reached maximum number of slices
             if (numSlices == myDimensions.z_parent){
+                std::cout<<"Number of slices read reached z_parent, running compression now"<<std::endl;
                 myCompressor.Compress();
                 mySlices.clear();
                 currentSlice.clear();

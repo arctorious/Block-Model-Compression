@@ -1,3 +1,3 @@
 default:
-	g++ -std=c++11 -o main.out src/main.cpp
-	./main.out tests/input.txt
+	g++ -std=c++11 -Wall -o build/main.out src/main.cpp src/compression.cpp src/stream_processor.cpp
+	./build/main.out tests/input.txt
