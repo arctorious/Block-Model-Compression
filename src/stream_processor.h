@@ -1,3 +1,12 @@
+/**
+ * @file stream_processor.h
+ * @brief StreamProcessor class to manage the processing of streams with compression, dimensions, and slices.
+ *
+ * This class provides functionalities for reading and processing stream data,
+ * including reading configuration, handling slices, and working with compression.
+ * It serves as the main interface for managing the entire stream processing workflow.
+ */
+
 #pragma once
 #include <vector>
 #include <unordered_map>
