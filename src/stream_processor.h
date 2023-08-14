@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include "compression.h"
+#include "simple_compression.h"
 #include "dimensions.hpp"
 
 /**
@@ -38,9 +39,16 @@ public:
      */
     void ReadSlices();
 
+    /**
+     * @brief Destructor to clean up the pointer
+     *
+     * Cleans up the Compression object
+     */
+    ~StreamProcessor(); // Destructor to clean up the pointer
+
 private:
     std::ifstream myFin;      ///< Input file stream for reading data.  
-    Compression myCompressor; ///< Object for handling compression.
+    Compression* myCompressor; ///< Object for handling compression.
     std::vector<std::vector<std::vector<char>>> mySlices; ///< Storage for slices data.
     std::unordered_map<char, std::string> myTagTable; ///< Table for mapping tags.
     Dimensions myDimensions; ///< Object for storing dimensions.

@@ -2,12 +2,15 @@
 #include <sstream>
 #include "stream_processor.h"
 
-StreamProcessor::StreamProcessor(std::string fileName): myFin(fileName),
-                                                        myCompressor(&mySlices, &myTagTable, &myDimensions){
+StreamProcessor::StreamProcessor(std::string fileName): myFin(fileName){
     if (!myFin) {
         std::cerr << "Error opening input file." << std::endl;
         return;
     }
+
+    // Create a SimpleCompression object and assign its address to myCompressor
+    myCompressor = new SimpleCompression(&mySlices, &myTagTable, &myDimensions);
+
     ReadConfiguration();
 }
 
@@ -54,6 +57,7 @@ void StreamProcessor::ReadConfiguration(){
 void StreamProcessor::ReadSlices(){
     std::vector<std::vector<char>> currentSlice;
     std::string line;
+    int start_z = 0;
 
     while (std::getline(myFin, line)) { // Read until the end of the file
         if (line.find_first_not_of(" \t\r\n") == std::string::npos) {
@@ -66,10 +70,11 @@ void StreamProcessor::ReadSlices(){
             // Run the compression algorithm if we have reached maximum number of slices
             if (numSlices == myDimensions.z_parent){
                 std::cout<<"Number of slices read reached z_parent, running compression now"<<std::endl;
-                myCompressor.Compress();
+                myCompressor->Compress(start_z);
                 mySlices.clear();
                 currentSlice.clear();
                 numSlices = 0;
+                start_z += myDimensions.z_parent;
             }
         } else {
             // If the line is not empty, add it to the current slice
@@ -96,4 +101,9 @@ void StreamProcessor::ReadSlices(){
         }
         std::cout << '\n';
     }
+}
+
+// Destructor to clean up the pointer
+StreamProcessor::~StreamProcessor() {
+    delete myCompressor;
 }
