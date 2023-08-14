@@ -2,12 +2,15 @@
 #include <sstream>
 #include "stream_processor.h"
 
-StreamProcessor::StreamProcessor(std::string fileName): myFin(fileName),
-                                                        myCompressor(&mySlices, &myTagTable, &myDimensions){
+StreamProcessor::StreamProcessor(std::string fileName): myFin(fileName){
     if (!myFin) {
         std::cerr << "Error opening input file." << std::endl;
         return;
     }
+
+    // Create a SimpleCompression object and assign its address to myCompressor
+    myCompressor = new SimpleCompression(&mySlices, &myTagTable, &myDimensions);
+
     ReadConfiguration();
 }
 
@@ -67,7 +70,7 @@ void StreamProcessor::ReadSlices(){
             // Run the compression algorithm if we have reached maximum number of slices
             if (numSlices == myDimensions.z_parent){
                 std::cout<<"Number of slices read reached z_parent, running compression now"<<std::endl;
-                myCompressor.Compress(start_z);
+                myCompressor->Compress(start_z);
                 mySlices.clear();
                 currentSlice.clear();
                 numSlices = 0;
@@ -98,4 +101,9 @@ void StreamProcessor::ReadSlices(){
         }
         std::cout << '\n';
     }
+}
+
+// Destructor to clean up the pointer
+StreamProcessor::~StreamProcessor() {
+    delete myCompressor;
 }

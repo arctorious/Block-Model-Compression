@@ -16,6 +16,12 @@ public:
                 Dimensions* Dimensions);
     void Compress(int z);
     virtual void CompressBlock(int x_start, int y_start, int z_start) = 0; // Pure virtual function
+    virtual ~Compression() = default; // Virtual destructor
+
+protected:
+    std::vector<std::vector<std::vector<char>>>* mySlices;
+    std::unordered_map<char, std::string>* myTagTable;
+    Dimensions* myDimensions;
 
 private:
     int x_start;
@@ -23,8 +29,4 @@ private:
     int z_start;
 
     std::queue<std::vector<int>> workQueue; // Queue to hold blocks to be processed
-
-    std::vector<std::vector<std::vector<char>>>* mySlices;
-    std::unordered_map<char, std::string>* myTagTable;
-    Dimensions* myDimensions;
 };
