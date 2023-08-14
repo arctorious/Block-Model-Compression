@@ -19,29 +19,10 @@ void Compression::Compress(int z_start) {
         x_start = 0;
         y_start += myDimensions.y_parent;
     }
-
-    // Create thread pool
-    const int numThreads = std::thread::hardware_concurrency();
-    for (int i = 0; i < numThreads; ++i) {
-        threadPool.emplace_back(&Compression::WorkerFunction, this);
-    }
-
-    // Wait for all threads to finish
-    for (auto& t : threadPool) {
-        t.join();
-    }
-}
-
-void Compression::WorkerFunction() {
-    while (true) {
-        std::vector<int> chunk;
-        {
-            std::unique_lock<std::mutex> lock(mtx);
-            cv.wait(lock, [this]() { return !workQueue.empty() || done; });
-            if (workQueue.empty() && done) return; // All work is done
-            chunk = workQueue.front();
-            workQueue.pop();
-        }
-        CompressBlock(chunk[0], chunk[1], chunk[2]);
+    std::vector<int> chunk_pos;
+    for (int i = 0; i < workQueue.size(); i++){
+        chunk_pos = workQueue.front();
+        workQueue.pop();
+        CompressBlock(chunk_pos[0], chunk_pos[1], chunk_pos[2]);
     }
 }
