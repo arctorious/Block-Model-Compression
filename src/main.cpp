@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <chrono>
 #include "stream_processor.h"
 
 /**
@@ -29,7 +30,19 @@ int main(int argc, char *argv[]) {
 
     std::string file_name = argv[1];
 
-    StreamProcessor myStreamProcessor(file_name); // Initialize and process the stream
+    // Start the timer
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Initialize and process the stream
+    StreamProcessor myStreamProcessor(file_name); 
+
+    // Stop the timer
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    // Compute the duration
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    std::cout << "Time taken: " << duration.count() << " microseconds" << std::endl;
 
     return 0;
 }
