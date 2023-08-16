@@ -21,6 +21,8 @@ void StreamProcessor::ReadConfiguration(){
         std::stringstream ss(line);
         std::string token;
         // Tokenize by ',' and populate the struct
+
+        
         std::getline(ss, token, ','); myDimensions.x_count = std::stoi(token);
         std::getline(ss, token, ','); myDimensions.y_count = std::stoi(token);
         std::getline(ss, token, ','); myDimensions.z_count = std::stoi(token);
@@ -28,6 +30,7 @@ void StreamProcessor::ReadConfiguration(){
         std::getline(ss, token, ','); myDimensions.y_parent = std::stoi(token);
         std::getline(ss, token, ','); myDimensions.z_parent = std::stoi(token);
 
+        /*
         // Output to verify
         std::cout << "x_count: " << myDimensions.x_count << "\n";
         std::cout << "y_count: " << myDimensions.y_count << "\n";
@@ -35,6 +38,7 @@ void StreamProcessor::ReadConfiguration(){
         std::cout << "x_parent: " << myDimensions.x_parent << "\n";
         std::cout << "y_parent: " << myDimensions.y_parent << "\n";
         std::cout << "z_parent: " << myDimensions.z_parent << "\n";
+        */
     }
 
     while (std::getline(myFin, line)) { // Read Tags
@@ -49,7 +53,7 @@ void StreamProcessor::ReadConfiguration(){
         myTagTable.insert({key, token});
 
         // Print to verify
-        std::cout << "Key: " << key << ", Value: " << token << "\n";
+        // std::cout << "Key: " << key << ", Value: " << token << "\n";
     }
     ReadSlices();
 }
@@ -69,7 +73,7 @@ void StreamProcessor::ReadSlices(){
             }
             // Run the compression algorithm if we have reached maximum number of slices
             if (numSlices == myDimensions.z_parent){
-                std::cout<<"Number of slices read reached z_parent, running compression now"<<std::endl;
+                // std::cout<<"Number of slices read reached z_parent, running compression now"<<std::endl;
                 myCompressor->Compress(start_z);
                 mySlices.clear();
                 currentSlice.clear();
@@ -90,6 +94,7 @@ void StreamProcessor::ReadSlices(){
 
     myFin.close();
 
+    /*
     // Print to verify
     for (const auto &slice : mySlices) {
         std::cout << "Slice:\n";
@@ -101,6 +106,7 @@ void StreamProcessor::ReadSlices(){
         }
         std::cout << '\n';
     }
+    */
 }
 
 // Destructor to clean up the pointer
