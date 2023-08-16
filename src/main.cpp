@@ -7,6 +7,7 @@
  */
 
 #include <fstream>
+#include <string.h>
 #include <iostream>
 #include <chrono>
 #include "stream_processor.h"
@@ -24,25 +25,31 @@
  */
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <input_file>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <input_file> [-t]" << std::endl;
         return 1;
     }
 
+    bool timerEnabled = (argc > 2 && strcmp(argv[2], "-t") == 0);
     std::string file_name = argv[1];
 
-    // Start the timer
-    auto start = std::chrono::high_resolution_clock::now();
+    if (timerEnabled) {
+        // Start the timer
+        auto start = std::chrono::high_resolution_clock::now();
 
-    // Initialize and process the stream
-    StreamProcessor myStreamProcessor(file_name); 
+        // Initialize and process the stream
+        StreamProcessor myStreamProcessor(file_name);
 
-    // Stop the timer
-    auto stop = std::chrono::high_resolution_clock::now();
+        // Stop the timer
+        auto stop = std::chrono::high_resolution_clock::now();
 
-    // Compute the duration
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        // Compute the duration
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-    std::cout << "Time taken: " << duration.count() << " microseconds" << std::endl;
+        std::cout << "Time taken: " << duration.count() << " microseconds" << std::endl;
+    } else {
+        // Initialize and process the stream without timing
+        StreamProcessor myStreamProcessor(file_name);
+    }
 
     return 0;
 }
