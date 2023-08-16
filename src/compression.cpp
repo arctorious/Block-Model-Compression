@@ -10,11 +10,12 @@ void Compression::Compress(int z_start) {
     int x_blocks = myDimensions->x_count/myDimensions->x_parent;
     int y_blocks = myDimensions->y_count/myDimensions->y_parent;
     int x_start = 0, y_start = 0;
+    current_level = z_start;
 
     // Divide the work into chunks and add to the work queue
     for (int i = 0; i < x_blocks; i++) {
         for (int j = 0; j < y_blocks; j++){
-            workQueue.push({x_start, y_start, z_start});
+            workQueue.push({0, y_start, x_start});
             x_start += myDimensions->x_parent;
         }
         x_start = 0;

@@ -7,20 +7,31 @@ SimpleCompression::SimpleCompression(std::vector<std::vector<std::vector<char>>>
     : Compression(Slices, TagTable, Dimensions)
 {}
 
-void SimpleCompression::CompressBlock(int x_start, int y_start, int z_start) {
+void SimpleCompression::CompressBlock(int z_start, int x_start, int y_start) {
 
     // Specifying the end indexes of this parent block
     int x_end = x_start + myDimensions->x_parent;
     int y_end = y_start + myDimensions->y_parent;
     int z_end = z_start + myDimensions->z_parent;
 
+    /*
     std::cout<<"processing block with bounds:"<<std::endl;
     std::cout<<"x_start: "<<x_start<<" y_start: "<<y_start<<" z_start: "<<z_start<<std::endl;
     std::cout<<"x_end: "<<x_end<<" y_end: "<<y_end<<" z_end: "<<z_end<<std::endl;
     std::cout<<std::endl;
-
+    */
+    
     // Implement the specific compression algorithm for a block here
-
+    for (int i = z_start; i < z_end; i++){
+        for (int j = x_start; j < x_end; j++){
+            for (int k = y_start; k < y_end; k++){
+                char key = (*mySlices)[i][j][k];
+                auto iterator = myTagTable->find(key);
+                std::string tag_name = iterator->second;
+                std::cout<<k<<","<<j<<","<<i+current_level<<","<<"1,1,1,"<<tag_name<<std::endl;
+            }
+        }
+    }
 
     // For this class it should process each cell 1 by 1 as said in the lecture
 
