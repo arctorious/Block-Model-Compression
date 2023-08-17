@@ -4,7 +4,7 @@ EXEC = main.out
 FLAG = 
 
 default:
-	${COMPILER} -std=c++11 -Wall -o build/${EXEC} ${FLAG} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp
+	${COMPILER} -std=c++11 -pthread -Wall -o build/${EXEC} ${FLAG} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp
 
 run:
 	make
@@ -14,4 +14,4 @@ time:
 	make run TIMER_FLAG=-t
 
 titan-linux:
-	make COMPILER="x86_64-w64-mingw32-g++ -static" EXEC=BLOCK11.exe
+	make COMPILER="x86_64-w64-mingw32-g++-posix -static" EXEC=BLOCK11.exe

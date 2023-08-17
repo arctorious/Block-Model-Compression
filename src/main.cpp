@@ -25,6 +25,10 @@
  */
 int main(int argc, char *argv[]) {
 
+    // SPEEED
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
     bool timerEnabled = (argc > 1 && strcmp(argv[1], "-t") == 0);
 
     if (timerEnabled) {
