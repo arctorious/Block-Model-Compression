@@ -29,14 +29,24 @@ int main(int argc, char *argv[]) {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
 
-    bool timerEnabled = (argc > 1 && strcmp(argv[1], "-t") == 0);
+    char algorithm;
+    bool timerEnabled = false;
+
+    for (int i = 1; i < argc; i++){
+        std::string arg = argv[i];
+        if (arg == "-t")
+            timerEnabled = true;
+        else
+            algorithm = arg[1];
+    }
+
 
     if (timerEnabled) {
         // Start the timer
         auto start = std::chrono::high_resolution_clock::now();
 
         // Initialize and process the stream
-        StreamProcessor myStreamProcessor;
+        StreamProcessor myStreamProcessor(algorithm);
         myStreamProcessor.StartProcessing();
 
         // Stop the timer
@@ -48,7 +58,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     } else {
         // Initialize and process the stream without timing
-        StreamProcessor myStreamProcessor;
+        StreamProcessor myStreamProcessor(algorithm);
         myStreamProcessor.StartProcessing();
     }
 
