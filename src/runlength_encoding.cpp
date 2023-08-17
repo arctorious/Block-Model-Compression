@@ -7,10 +7,6 @@ RunLengthEncoding::RunLengthEncoding(std::vector<std::vector<std::vector<char>>>
     : Compression(Slices, TagTable, Dimensions)
 {}
 
-std::string RunLengthEncoding::getTag(char key){
-    return (myTagTable->find(key))->second;
-}
-
 void RunLengthEncoding::CompressBlock(int z_start, int x_start, int y_start) {
 
     // Specifying the end indexes of this parent block

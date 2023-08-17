@@ -50,6 +50,10 @@ void Compression::WorkerFunction() {
     }
 }
 
+std::string Compression::getTag(char key){
+    return (myTagTable->find(key))->second;
+}
+
 void Compression::PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label) {
     std::lock_guard<std::mutex> lock(coutMutex);
     std::cout << x_position << "," << y_position << "," << z_position << "," << x_size << "," << y_size << "," << z_size << "," << label << '\n';

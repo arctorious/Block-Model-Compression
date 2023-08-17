@@ -61,6 +61,13 @@ public:
      */
     virtual void CompressBlock(int x_start, int y_start, int z_start) = 0;
 
+    /** 
+     * @brief fetches the tag for a given key
+     * 
+     * @param key character of a specific key
+     * @return the fetched tag string
+     */
+     std::string getTag(char key);
 
     /**
      * @brief Function to print the output
