@@ -13,7 +13,7 @@
 #include <string>
 #include <fstream>
 #include "compression.h"
-#include "simple_compression.h"
+#include "runlength_encoding.h"
 #include "dimensions.hpp"
 
 /**
