@@ -16,7 +16,7 @@
  * This class provides a simple compression algorithm by extending the base Compression class.
  * It is responsible for compressing individual blocks within the 3D structure.
  */
-class runlength_encoding : public Compression
+class RunLengthEncoding : public Compression
 {
 private:
     /** 
@@ -36,7 +36,7 @@ public:
      * @param Dimensions Pointer to the dimensions object.
      * Initializes the runlength_encoding with the provided parameters.
      */
-    runlength_encoding(std::vector<std::vector<std::vector<char>>>* Slices,
+    RunLengthEncoding(std::vector<std::vector<std::vector<char>>>* Slices,
                       std::unordered_map<char, std::string>* TagTable,
                       Dimensions* Dimensions);
 

@@ -1,17 +1,17 @@
 #include <iostream>
 #include "runlength_encoding.h"
 
-runlength_encoding::runlength_encoding(std::vector<std::vector<std::vector<char>>>* Slices,
+RunLengthEncoding::RunLengthEncoding(std::vector<std::vector<std::vector<char>>>* Slices,
                                      std::unordered_map<char, std::string>* TagTable,
                                      Dimensions* Dimensions)
     : Compression(Slices, TagTable, Dimensions)
 {}
 
-std::string runlength_encoding::getTag(char key){
+std::string RunLengthEncoding::getTag(char key){
     return (myTagTable->find(key))->second;
 }
 
-void runlength_encoding::CompressBlock(int z_start, int x_start, int y_start) {
+void RunLengthEncoding::CompressBlock(int z_start, int x_start, int y_start) {
 
     // Specifying the end indexes of this parent block
     int x_end = x_start + myDimensions->x_parent;
