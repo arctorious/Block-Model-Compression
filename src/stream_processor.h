@@ -29,10 +29,17 @@ public:
     /**
      * @brief Constructs a StreamProcessor object.
      * 
-     * @param file the input file name as a string
+     * @param
      * Initializes the StreamProcessor with default values.
      */
-    StreamProcessor(std::string file);
+    StreamProcessor();
+
+    /**
+     * @brief Starts processing the input from standard input.
+     *
+     * Calls other functions which store the input into data structures
+     */
+    void StartProcessing();
 
     /**
      * @brief Reads the configuration from a specified source.
@@ -56,7 +63,7 @@ public:
     ~StreamProcessor(); // Destructor to clean up the pointer
 
 private:
-    std::ifstream myFin;      ///< Input file stream for reading data.  
+    // std::ifstream myFin;      ///< Input file stream for reading data.  
     Compression* myCompressor; ///< Object for handling compression.
     std::vector<std::vector<std::vector<char>>> mySlices; ///< Storage for slices data.
     std::unordered_map<char, std::string> myTagTable; ///< Table for mapping tags.
