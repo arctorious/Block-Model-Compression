@@ -4,7 +4,7 @@
 
 StreamProcessor::StreamProcessor(){
     // Create a SimpleCompression object and assign its address to myCompressor
-    myCompressor = new SimpleCompression(&mySlices, &myTagTable, &myDimensions);
+    myCompressor = new RunLengthEncoding(&mySlices, &myTagTable, &myDimensions);
 }
 
 void StreamProcessor::StartProcessing(){

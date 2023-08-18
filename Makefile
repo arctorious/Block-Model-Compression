@@ -4,7 +4,7 @@ EXEC = main.out
 FLAG = 
 
 default:
-	${COMPILER} -std=c++11 -Wall -o build/${EXEC} ${FLAG} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp
+	${COMPILER} -std=c++11 -Wall -o build/${EXEC} ${FLAG} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp
 
 run:
 	make
