@@ -6,6 +6,7 @@ ALGORITHM =
 default:
 	${COMPILER} -std=c++11 -pthread -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp
 
+
 run:
 	make
 	./build/main.out < build/the_intro_one_32768_4x4x4.csv $(ALGORITHM) $(TIMER_FLAG)
