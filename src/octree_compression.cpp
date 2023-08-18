@@ -19,7 +19,7 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
 
 void OctreeCompression::solve(int z_start, int y_start, int x_start, int z_end, int y_end, int x_end) {
     if (isHomogeneous(z_start, y_start, x_start, z_end, y_end, x_end)) {
-        std::cout<<x_start<<","<<y_start<<","<<z_start+current_level<<","<<x_end-x_start+1<<","<<y_end-y_start+1<<","<<z_end-z_start+1<<","<<(*myTagTable)[(*mySlices)[z_start][y_start][x_start]]<<std::endl;
+        PrintOutput(x_start, y_start, z_start+current_level, x_end-x_start+1, y_end-y_start+1, z_end-z_start+1, (*myTagTable)[(*mySlices)[z_start][y_start][x_start]]);
     } else {
         int z_mid = (z_start + z_end) / 2;
         int y_mid = (y_start + y_end) / 2;

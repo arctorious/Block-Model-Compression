@@ -13,6 +13,7 @@
 #include <string>
 #include <fstream>
 #include "compression.h"
+#include "runlength_encoding.h"
 #include "simple_compression.h"
 #include "octree_compression.h"
 #include "dimensions.hpp"
@@ -33,7 +34,7 @@ public:
      * @param
      * Initializes the StreamProcessor with default values.
      */
-    StreamProcessor();
+    StreamProcessor(char alg);
 
     /**
      * @brief Starts processing the input from standard input.
@@ -41,6 +42,18 @@ public:
      * Calls other functions which store the input into data structures
      */
     void StartProcessing();
+
+    /**
+     * @brief Creates a compression algorithm object based on the given name.
+     *
+     * This function utilizes the Factory Design Pattern to create a compression algorithm object.
+     * Different algorithms can be created based on the input name, and a default algorithm is used
+     * if the name does not match any known algorithm.
+     *
+     * @param name The name or identifier for the desired compression algorithm.
+     * @return A pointer to the created compression algorithm object.
+     */
+    Compression* createCompressionAlgorithm(const char name);
 
     /**
      * @brief Reads the configuration from a specified source.
