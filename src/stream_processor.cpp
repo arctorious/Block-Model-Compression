@@ -3,8 +3,8 @@
 #include "stream_processor.h"
 
 StreamProcessor::StreamProcessor(){
-    // Create a SimpleCompression object and assign its address to myCompressor
-    myCompressor = new SimpleCompression(&mySlices, &myTagTable, &myDimensions);
+    // Create a OctreeCompression object and assign its address to myCompressor
+    myCompressor = new OctreeCompression(&mySlices, &myTagTable, &myDimensions);
 }
 
 void StreamProcessor::StartProcessing(){

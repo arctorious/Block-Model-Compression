@@ -14,6 +14,7 @@
 #include <fstream>
 #include "compression.h"
 #include "simple_compression.h"
+#include "octree_compression.h"
 #include "dimensions.hpp"
 
 /**
