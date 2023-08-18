@@ -21,9 +21,7 @@ void SimpleCompression::CompressBlock(int z_start, int x_start, int y_start) {
         for (int j = x_start; j < x_end; j++){
             for (int k = y_start; k < y_end; k++){
                 char key = (*mySlices)[i][j][k];
-                auto iterator = myTagTable->find(key);
-                std::string tag_name = iterator->second;
-                std::cout<<k<<","<<j<<","<<i+current_level<<","<<"1,1,1,"<<tag_name<<std::endl;
+                PrintOutput(k, j, i + current_level, 1, 1, 1, getTag(key));
             }
         }
     }

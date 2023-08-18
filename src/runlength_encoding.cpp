@@ -7,9 +7,6 @@ RunLengthEncoding::RunLengthEncoding(std::vector<std::vector<std::vector<char>>>
     : Compression(Slices, TagTable, Dimensions)
 {}
 
-std::string RunLengthEncoding::getTag(char key){
-    return (myTagTable->find(key))->second;
-}
 
 void RunLengthEncoding::CompressBlock(int z_start, int x_start, int y_start) {
 
@@ -36,14 +33,14 @@ void RunLengthEncoding::CompressBlock(int z_start, int x_start, int y_start) {
                 if(saved_key == current_key)
                     key_count++;
                 else{
-                    std::cout<<starting_k<<","<<j<<","<<i+current_level<<","<<key_count<<",1,1,"<<getTag(saved_key)<<std::endl;
+                    PrintOutput(starting_k, j, i + current_level, key_count, 1, 1, getTag(saved_key));
     
                     saved_key = current_key;
                     starting_k = k;
                     key_count = 1;                    
                 }
             }
-            std::cout<<starting_k<<","<<j<<","<<i+current_level<<","<<key_count<<",1,1,"<<getTag(saved_key)<<std::endl;
+            PrintOutput(starting_k, j, i + current_level, key_count, 1, 1, getTag(saved_key));
         }
     }
 

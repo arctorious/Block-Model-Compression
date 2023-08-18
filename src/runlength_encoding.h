@@ -19,13 +19,6 @@
 class RunLengthEncoding : public Compression
 {
 private:
-    /** 
-     * @brief fetches the tag for a given key
-     * 
-     * @param key character of a specific key
-     * @return the fetched tag string
-     */
-     std::string getTag(char key);
 
 public:
     /**

@@ -2,9 +2,20 @@
 #include <sstream>
 #include "stream_processor.h"
 
-StreamProcessor::StreamProcessor(){
-    // Create a SimpleCompression object and assign its address to myCompressor
-    myCompressor = new RunLengthEncoding(&mySlices, &myTagTable, &myDimensions);
+StreamProcessor::StreamProcessor(char alg){
+    // Call the Factory Method and create the myCompressor object
+    myCompressor = createCompressionAlgorithm(alg);
+}
+
+Compression* StreamProcessor::createCompressionAlgorithm(const char name) {
+    switch (name) {
+        case 's':
+            return new SimpleCompression(&mySlices, &myTagTable, &myDimensions);
+        case 'r':
+            return new RunLengthEncoding(&mySlices, &myTagTable, &myDimensions);
+        default:
+            return new RunLengthEncoding(&mySlices, &myTagTable, &myDimensions);
+    }
 }
 
 void StreamProcessor::StartProcessing(){

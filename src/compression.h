@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <string>
 #include <queue>
+#include <mutex>
 #include "dimensions.hpp"
 
 /**
@@ -43,6 +44,14 @@ public:
      */
     void Compress(int z);
 
+
+    /**
+     * @brief Worker Function for the threads.
+     *
+     * threads will be looping here.
+     */
+    void WorkerFunction();
+
     /**
      * @brief Pure virtual function for handling block compression.
      *
@@ -51,6 +60,27 @@ public:
      * @param z_start Starting z coordinate of the block.
      */
     virtual void CompressBlock(int x_start, int y_start, int z_start) = 0;
+
+    /** 
+     * @brief fetches the tag for a given key
+     * 
+     * @param key character of a specific key
+     * @return the fetched tag string
+     */
+     std::string getTag(char key);
+
+    /**
+     * @brief Function to print the output
+     *
+     * @param x_position Starting x coordinate of the block.
+     * @param y_position Starting y coordinate of the block.
+     * @param z_position Starting z coordinate of the block.
+     * @param x_size     Size of grouped cells in x direction.
+     * @param y_size     Size of grouped cells in y direction.
+     * @param z_size     Size of grouped cells in z direction.
+     * @param lable      Tag lable from the tag table
+     */
+    void PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label);
 
     /**
      * @brief Virtual destructor.
@@ -67,6 +97,9 @@ private:
     int x_start; ///< Starting x coordinate.
     int y_start; ///< Starting y coordinate.
     int z_start; ///< Starting z coordinate.
+
+    std::mutex workQueueMutex; ///< mutex lock for popping the chunks in queue
+    std::mutex coutMutex; ///< Mutex to synchronize writes to std::cout
 
     std::queue<std::vector<int>> workQueue; ///< Queue to hold blocks to be processed.
 };
