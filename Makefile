@@ -3,10 +3,10 @@ COMPILER = g++
 EXEC = main.out
 ALGORITHM =
 
-.PHONY: default run run-simple run-runlength run-octree time time-simple time-runlength time-octree titan-linux
+.PHONY: default run run-simple run-runlength run-octree time time-simple time-runlength time-octree titan-linux titan-arch-linux runner-linux
 
 default:
-	${COMPILER} -std=c++11 -pthread -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_compression.cpp
+	${COMPILER} -std=c++11 -lpthread -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_compression.cpp
 
 run:
 	make
@@ -35,3 +35,10 @@ time-octree:
 
 titan-linux:
 	make COMPILER="x86_64-w64-mingw32-g++-posix -static" EXEC=BLOCK11.exe
+
+titan-arch-linux:
+	make COMPILER="x86_64-w64-mingw32-g++ -static" EXEC=BLOCK11.exe
+
+runner-linux:
+	cd build; \
+	wine python runner.py BLOCK11.exe the_intro_one_32768_4x4x4.csv
