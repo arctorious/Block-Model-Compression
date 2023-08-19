@@ -24,6 +24,7 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
         int z_mid = (z_start + z_end) / 2;
         int y_mid = (y_start + y_end) / 2;
         int x_mid = (x_start + x_end) / 2;
+        // indices of the 8 sub-blocks
         indices = {{{z_start, y_start, x_start}, {z_mid, y_mid, x_mid}},
                    {{z_start, y_start, x_mid+1}, {z_mid, y_mid, x_end}},
                    {{z_start, y_mid+1, x_start}, {z_mid, y_end, x_mid}},
@@ -32,18 +33,23 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
                    {{z_mid+1, y_start, x_mid+1}, {z_end, y_mid, x_end}},
                    {{z_mid+1, y_mid+1, x_start}, {z_end, y_end, x_mid}},
                    {{z_mid+1, y_mid+1, x_mid+1}, {z_end, y_end, x_end}}};
+        // homogeneity of the 8 sub-blocks
         bool homogeneity[8];
         for (int i = 0; i < 8; i++) {
             homogeneity[i] = isHomogeneous(indices[i][0][0], indices[i][0][1], indices[i][0][2], indices[i][1][0], indices[i][1][1], indices[i][1][2]);
         }
+        // check if all sub-blocks are homogeneous with each other
         if (aggregate(indices, homogeneity, {0, 1, 2, 3, 4, 5, 6, 7})) {
             continue;
         }
         bool done = false;
+        // check for 2*2*1 groups of sub-blocks
         std::vector<std::vector<int>> sides = {{0, 1, 2, 3}, {0, 1, 4, 5}, {0, 2, 4, 6}, {1, 3, 5, 7}, {2, 3, 6, 7}, {4, 5, 6, 7}};
         for (int i = 0; i < 6; i++) {
             if (aggregate(indices, homogeneity, sides[i])) {
+                // check if the opposite side can be grouped as well
                 if (i >= 3 || !aggregate(indices, homogeneity, {sides[5-i][0], sides[5-i][1], sides[5-i][2], sides[5-i][3]})) {
+                    // if not, process the remaining sub-blocks individually
                     for (int j = 0; j < 4; j++) {
                         if (homogeneity[sides[5-i][j]]) {
                             aggregate(indices, homogeneity, {sides[5-i][j]});
@@ -59,6 +65,7 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
         if (done) {
             continue;
         }
+        // process all sub-blocks individually
         for (int i = 0; i < 8; i++) {
             if (homogeneity[i]) {
                 aggregate(indices, homogeneity, {i});

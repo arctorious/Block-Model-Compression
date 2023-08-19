@@ -66,5 +66,14 @@ public:
      */
     bool isHomogeneous(int x_start, int y_start, int z_start, int x_end, int y_end, int z_end);
     
+    /**
+     * @brief Check if the given sub-blocks can be aggregated. If so, output the current block
+     * 
+     * @param indices the indices of the sub-blocks
+     * @param homogeneity the homogeneity of the sub-blocks
+     * @param cells the given sub-blocks
+     * @return true if the given sub-blocks can be aggregated
+     * @return false otherwise
+     */
     bool aggregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::vector<int> cells);
 };
