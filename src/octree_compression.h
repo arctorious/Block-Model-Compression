@@ -65,4 +65,6 @@ public:
      * @return false If the current block is not homogeneous
      */
     bool isHomogeneous(int x_start, int y_start, int z_start, int x_end, int y_end, int z_end);
+    
+    bool aggregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::vector<int> cells);
 };
