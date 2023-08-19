@@ -51,10 +51,37 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
             if (i < 3 && aggregate(indices, homogeneity, {sides[5-i][0], sides[5-i][1], sides[5-i][2], sides[5-i][3]})) {
                 goto done;
             }
+            // check for 2*1*1 groups of sub-blocks
+            for (int j = 0; j < 4; j++) {
+                if (!aggregate(indices, homogeneity, {sides[5-i][side_edges[j][0]], sides[5-i][side_edges[j][1]]})) {
+                    continue;
+                }
+                // check if the opposite side can be grouped as well
+                if (aggregate(indices, homogeneity, {sides[5-i][side_edges[3-j][0]], sides[5-i][side_edges[3-j][1]]})) {
+                    goto done;
+                }
+                // if not, process the remaining sub-blocks individually
+                for (int k = 0; k < 2; k++) {
+                    if (!aggregate(indices, homogeneity, {sides[5-i][side_edges[3-j][k]]})) {
+                        q.push(std::make_tuple(indices[sides[5-i][side_edges[3-j][k]]][0][0],
+                                               indices[sides[5-i][side_edges[3-j][k]]][0][1],
+                                               indices[sides[5-i][side_edges[3-j][k]]][0][2],
+                                               indices[sides[5-i][side_edges[3-j][k]]][1][0],
+                                               indices[sides[5-i][side_edges[3-j][k]]][1][1],
+                                               indices[sides[5-i][side_edges[3-j][k]]][1][2]));
+                    }
+                }
+                goto done;
+            }
             // if not, process the remaining sub-blocks individually
             for (int j = 0; j < 4; j++) {
                 if (!aggregate(indices, homogeneity, {sides[5-i][j]})) {
-                    q.push(std::make_tuple(indices[sides[5-i][j]][0][0], indices[sides[5-i][j]][0][1], indices[sides[5-i][j]][0][2], indices[sides[5-i][j]][1][0], indices[sides[5-i][j]][1][1], indices[sides[5-i][j]][1][2]));
+                    q.push(std::make_tuple(indices[sides[5-i][j]][0][0],
+                                           indices[sides[5-i][j]][0][1],
+                                           indices[sides[5-i][j]][0][2],
+                                           indices[sides[5-i][j]][1][0],
+                                           indices[sides[5-i][j]][1][1],
+                                           indices[sides[5-i][j]][1][2]));
                 }
             }
             goto done;
