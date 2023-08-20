@@ -97,4 +97,16 @@ public:
      * @return false 
      */
     bool n_take_one_aggregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::queue<std::tuple<int, int, int, int, int, int>>& q, int side = -1);
+    
+    /**
+     * @brief Individually output / process the sub-blocks
+     * 
+     * @param indices 
+     * @param homogeneity 
+     * @param q 
+     * @param cells 
+     * @return true 
+     * @return false 
+     */
+    bool segregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::queue<std::tuple<int, int, int, int, int, int>>& q, std::vector<int> cells);
 };
