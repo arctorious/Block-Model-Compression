@@ -7,6 +7,7 @@
 
 #pragma once
 #include "compression.h"
+#include "octree_node.h"
 
 /**
  * @class OctreeCompression
@@ -49,33 +50,6 @@ public:
     void CompressBlock(int x_start, int y_start, int z_start) override;
     
     /**
-     * @brief Base case: if the current block is homogeneous, output the current block
-     * Otherwise, recursively call solve on each of the 8 subblocks
-     * 
-     * @param z_start Starting z coordinate of the block.
-     * @param y_start Starting y coordinate of the block.
-     * @param x_start Starting x coordinate of the block.
-     * @param z_end Ending z coordinate of the block.
-     * @param y_end Ending y coordinate of the block.
-     * @param x_end Ending x coordinate of the block.
-     */
-    void solve(int x_start, int y_start, int z_start, int x_end, int y_end, int z_end);
-    
-    /**
-     * @brief Check if the current block is homogeneous
-     * 
-     * @param z_start Starting z coordinate of the block.
-     * @param y_start Starting y coordinate of the block.
-     * @param x_start Starting x coordinate of the block.
-     * @param z_end Ending z coordinate of the block.
-     * @param y_end Ending y coordinate of the block.
-     * @param x_end Ending x coordinate of the block.
-     * @return true If the current block is homogeneous
-     * @return false If the current block is not homogeneous
-     */
-    bool isHomogeneous(int x_start, int y_start, int z_start, int x_end, int y_end, int z_end);
-    
-    /**
      * @brief Check if the given sub-blocks can be aggregated. If so, output the current block
      * 
      * @param indices the indices of the sub-blocks
@@ -84,7 +58,7 @@ public:
      * @return true if the given sub-blocks can be aggregated
      * @return false otherwise
      */
-    bool aggregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::vector<int> cells);
+    bool aggregate(OctreeNode& node, std::vector<int> cells);
     
     /**
      * @brief Check if the subblocks of (n-1) dimensions can be aggregated. If so, output the current block
@@ -96,7 +70,7 @@ public:
      * @return true 
      * @return false 
      */
-    bool n_take_one_aggregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::queue<std::tuple<int, int, int, int, int, int>>& q, int side = -1);
+    bool n_take_one_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, int side = -1);
     
     /**
      * @brief Individually output / process the sub-blocks
@@ -108,5 +82,5 @@ public:
      * @return true 
      * @return false 
      */
-    bool segregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::queue<std::tuple<int, int, int, int, int, int>>& q, std::vector<int> cells);
+    bool segregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, std::vector<int> cells);
 };
