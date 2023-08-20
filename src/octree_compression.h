@@ -16,10 +16,16 @@
  */
 class OctreeCompression : public Compression
 {
-public:
+private:
     std::vector<std::vector<int>> sides = {{0, 1, 2, 3}, {0, 1, 4, 5}, {0, 2, 4, 6}, {1, 3, 5, 7}, {2, 3, 6, 7}, {4, 5, 6, 7}};
-    std::vector<std::vector<int>> side_edges = {{0, 1}, {0, 2}, {1, 3}, {2, 3}};
-    
+    std::vector<std::vector<std::vector<int>>> side_edges = {{{0, 1}, {0, 2}, {1, 3}, {2, 3}}, 
+                                                             {{0, 1}, {0, 4}, {1, 5}, {4, 5}}, 
+                                                             {{0, 2}, {0, 4}, {2, 6}, {4, 6}}, 
+                                                             {{1, 3}, {1, 5}, {3, 7}, {5, 7}}, 
+                                                             {{2, 3}, {2, 6}, {3, 7}, {6, 7}}, 
+                                                             {{4, 5}, {4, 6}, {5, 7}, {6, 7}}};
+
+public:
     /**
      * @brief Constructs a OctreeCompression object.
      * 
@@ -79,4 +85,16 @@ public:
      * @return false otherwise
      */
     bool aggregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::vector<int> cells);
+    
+    /**
+     * @brief Check if the subblocks of (n-1) dimensions can be aggregated. If so, output the current block
+     * 
+     * @param indices 
+     * @param homogeneity 
+     * @param q 
+     * @param side 
+     * @return true 
+     * @return false 
+     */
+    bool n_take_one_aggregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::queue<std::tuple<int, int, int, int, int, int>>& q, int side = -1);
 };

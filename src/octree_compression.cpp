@@ -18,6 +18,7 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
     
     std::queue<std::tuple<int, int, int, int, int, int>> q;
     q.push(std::make_tuple(z_start, y_start, x_start, z_end, y_end, x_end));
+    
     while (!q.empty()) {
         std::tie(z_start, y_start, x_start, z_end, y_end, x_end) = q.front();
         q.pop();
@@ -38,53 +39,10 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
         for (int i = 0; i < 8; i++) {
             homogeneity[i] = isHomogeneous(indices[i][0][0], indices[i][0][1], indices[i][0][2], indices[i][1][0], indices[i][1][1], indices[i][1][2]);
         }
-        // check if all sub-blocks are homogeneous with each other
-        if (aggregate(indices, homogeneity, {0, 1, 2, 3, 4, 5, 6, 7})) {
+        // special cases
+        if (aggregate(indices, homogeneity, {0, 1, 2, 3, 4, 5, 6, 7}) || // check if all sub-blocks are homogeneous with each other
+            n_take_one_aggregate(indices, homogeneity, q)) {             // n-take-one aggregation
             continue;
-        }
-        // check for 2*2*1 groups of sub-blocks
-        for (int i = 0; i < 6; i++) {
-            if (!aggregate(indices, homogeneity, sides[i])) {
-                continue;
-            }
-            // check if the opposite side can be grouped as well
-            if (i < 3 && aggregate(indices, homogeneity, {sides[5-i][0], sides[5-i][1], sides[5-i][2], sides[5-i][3]})) {
-                goto done;
-            }
-            // check for 2*1*1 groups of sub-blocks
-            for (int j = 0; j < 4; j++) {
-                if (!aggregate(indices, homogeneity, {sides[5-i][side_edges[j][0]], sides[5-i][side_edges[j][1]]})) {
-                    continue;
-                }
-                // check if the opposite side can be grouped as well
-                if (aggregate(indices, homogeneity, {sides[5-i][side_edges[3-j][0]], sides[5-i][side_edges[3-j][1]]})) {
-                    goto done;
-                }
-                // if not, process the remaining sub-blocks individually
-                for (int k = 0; k < 2; k++) {
-                    if (!aggregate(indices, homogeneity, {sides[5-i][side_edges[3-j][k]]})) {
-                        q.push(std::make_tuple(indices[sides[5-i][side_edges[3-j][k]]][0][0],
-                                               indices[sides[5-i][side_edges[3-j][k]]][0][1],
-                                               indices[sides[5-i][side_edges[3-j][k]]][0][2],
-                                               indices[sides[5-i][side_edges[3-j][k]]][1][0],
-                                               indices[sides[5-i][side_edges[3-j][k]]][1][1],
-                                               indices[sides[5-i][side_edges[3-j][k]]][1][2]));
-                    }
-                }
-                goto done;
-            }
-            // if not, process the remaining sub-blocks individually
-            for (int j = 0; j < 4; j++) {
-                if (!aggregate(indices, homogeneity, {sides[5-i][j]})) {
-                    q.push(std::make_tuple(indices[sides[5-i][j]][0][0],
-                                           indices[sides[5-i][j]][0][1],
-                                           indices[sides[5-i][j]][0][2],
-                                           indices[sides[5-i][j]][1][0],
-                                           indices[sides[5-i][j]][1][1],
-                                           indices[sides[5-i][j]][1][2]));
-                }
-            }
-            goto done;
         }
         // process all sub-blocks individually
         for (int i = 0; i < 8; i++) {
@@ -92,7 +50,6 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
                 q.push(std::make_tuple(indices[i][0][0], indices[i][0][1], indices[i][0][2], indices[i][1][0], indices[i][1][1], indices[i][1][2]));
             }
         }
-        done:;
     }
 }
 
@@ -116,13 +73,42 @@ bool OctreeCompression::aggregate(std::vector<std::vector<std::vector<int>>>& in
             return false;
         }
     }
-    PrintOutput(indices[cells[0]][0][2],
-                indices[cells[0]][0][1],
-                indices[cells[0]][0][0]+current_level,
-                indices[cells[cells.size() - 1]][1][2]-indices[cells[0]][0][2]+1,
-                indices[cells[cells.size() - 1]][1][1]-indices[cells[0]][0][1]+1,
-                indices[cells[cells.size() - 1]][1][0]-indices[cells[0]][0][0]+1,
-                (*myTagTable)[(*mySlices)[indices[cells[0]][0][0]][indices[cells[0]][0][1]][indices[cells[0]][0][2]]]);
+    PrintOutput(indices[cells[0]][0][2],                                                                                // x_start
+                indices[cells[0]][0][1],                                                                                // y_start
+                indices[cells[0]][0][0]+current_level,                                                                  // z_start
+                indices[cells[cells.size() - 1]][1][2]-indices[cells[0]][0][2]+1,                                       // x_size
+                indices[cells[cells.size() - 1]][1][1]-indices[cells[0]][0][1]+1,                                       // y_size
+                indices[cells[cells.size() - 1]][1][0]-indices[cells[0]][0][0]+1,                                       // z_size
+                (*myTagTable)[(*mySlices)[indices[cells[0]][0][0]][indices[cells[0]][0][1]][indices[cells[0]][0][2]]]); // tag
 
     return true;
+}
+
+bool OctreeCompression::n_take_one_aggregate(std::vector<std::vector<std::vector<int>>>& indices, bool* homogeneity, std::queue<std::tuple<int, int, int, int, int, int>>& q, int side) {
+    std::vector<std::vector<int>>& faces = side == -1 ? sides : side_edges[side];
+    int n = faces.size();
+    // check for groups of sub-blocks
+    for (int i = 0; i < n; i++) {
+        if (!aggregate(indices, homogeneity, faces[i])) {
+            continue;
+        }
+        // check if the opposite side can be grouped as well
+        if ((i < 3 && aggregate(indices, homogeneity, faces[n-1-i])) ||
+            (side == -1 && n_take_one_aggregate(indices, homogeneity, q, 5-i))) {
+            return true;
+        }
+        // if not, process the remaining sub-blocks individually
+        for (int j = 0; j < (int)faces[0].size(); j++) {
+            if (!aggregate(indices, homogeneity, {faces[n-1-i][j]})) {
+                q.push(std::make_tuple(indices[faces[n-1-i][j]][0][0],
+                                       indices[faces[n-1-i][j]][0][1],
+                                       indices[faces[n-1-i][j]][0][2],
+                                       indices[faces[n-1-i][j]][1][0],
+                                       indices[faces[n-1-i][j]][1][1],
+                                       indices[faces[n-1-i][j]][1][2]));
+            }
+        }
+        return true;
+    }
+    return false;
 }
