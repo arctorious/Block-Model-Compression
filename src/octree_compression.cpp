@@ -69,7 +69,7 @@ bool OctreeCompression::n_take_one_aggregate(OctreeNode& node, std::queue<std::t
 }
 
 bool OctreeCompression::edge_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q) {
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 2; i++) {
         if (aggregate(node, edges[i], false)) {
             switch (i) {
                 case 0:
@@ -103,6 +103,31 @@ bool OctreeCompression::edge_aggregate(OctreeNode& node, std::queue<std::tuple<i
                         (aggregate(node, {5, 7}) && segregate(node, q, {2, 3, 4, 6})) ||
                         (aggregate(node, {6, 7}) && segregate(node, q, {2, 3, 4, 5})) ||
                         segregate(node, q, {2, 3, 4, 5, 6, 7});
+                    }
+                    break;
+                case 1:
+                    if (aggregate(node, {0, 4}, false) && aggregate(node, {2, 3}, false)) {
+                        if (aggregate(node, {1, 5}, false) && aggregate(node, {6, 7}, false)) {
+                            PrintOutput(node, {{0, 4}, {2, 3}, {1, 5}, {6, 7}});
+                        } else if (aggregate(node, {5, 7}, false)) {
+                            PrintOutput(node, {{0, 4}, {2, 3}, {5, 7}, {1}, {6}});
+                        } else {
+                            PrintOutput(node, {{0, 4}, {2, 3}, {1}, {5}, {6}, {7}});
+                        }
+                    } else {
+                        PrintOutput(node, {{0, 2}});
+                        (aggregate(node, {1, 3}) && (n_take_one_aggregate(node, q, 5) || segregate(node, q, sides[5]))) ||
+                        (aggregate(node, {4, 6}) && (n_take_one_aggregate(node, q, 3) || segregate(node, q, sides[3]))) ||
+                        (aggregate(node, {1, 5}) && ((aggregate(node, {3, 7}) && segregate(node, q, {4, 6})) ||
+                                                     (aggregate(node, {6, 7}) && segregate(node, q, {3, 4})) ||
+                                                     segregate(node, q, {3, 4, 6, 7}))) ||
+                        (aggregate(node, {3, 7}) && ((aggregate(node, {4, 5}) && segregate(node, q, {1, 6})) ||
+                                                     segregate(node, q, {1, 4, 5, 6}))) ||
+                        (aggregate(node, {4, 5}) && ((aggregate(node, {6, 7}) && segregate(node, q, {1, 3})) ||
+                                                     segregate(node, q, {1, 3, 6, 7}))) ||
+                        (aggregate(node, {6, 7}) && segregate(node, q, {1, 3, 4, 5})) ||
+                        (aggregate(node, {5, 7}) && segregate(node, q, {1, 3, 4, 6})) ||
+                        segregate(node, q, {1, 3, 4, 5, 6, 7});
                     }
                     break;
             }
