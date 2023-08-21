@@ -22,7 +22,8 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
         q.pop();
         aggregate           (node,    {0, 1, 2, 3, 4, 5, 6, 7})  || // if all sub-blocks are homogeneous with each other
         n_take_one_aggregate(node, q)                            ||     // else, if any of the 2*2*1 blocks can be grouped
-        segregate           (node, q, {0, 1, 2, 3, 4, 5, 6, 7});            // else, segregate the sub-blocks
+        edge_aggregate      (node, q)                            ||         // else, if any of the 2*1*1 edges can be grouped
+        segregate           (node, q, {0, 1, 2, 3, 4, 5, 6, 7});                // else, segregate the sub-blocks
     }
 }
 
@@ -63,6 +64,50 @@ bool OctreeCompression::n_take_one_aggregate(OctreeNode& node, std::queue<std::t
              (side == -1 && n_take_one_aggregate(node, q, 5-i)) ||         // else, if any of the sub-edges of the opposite side can be grouped
              segregate(node, q, faces[n-1-i])))                                // else, segregate the sub-blocks
         return true;
+    }
+    return false;
+}
+
+bool OctreeCompression::edge_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q) {
+    for (int i = 0; i < 1; i++) {
+        if (aggregate(node, edges[i], false)) {
+            switch (i) {
+                case 0:
+                    if (aggregate(node, {0, 2}, false) && aggregate(node, {1, 5}, false)) {
+                        if (aggregate(node, {3, 7}, false) && aggregate(node, {4, 6}, false)) {
+                            PrintOutput(node, {{0, 2}, {1, 5}, {3, 7}, {4, 6}});
+                        } else if (aggregate(node, {6, 7}, false)) {
+                            PrintOutput(node, {{0, 2}, {1, 5}, {6, 7}, {3}, {4}});
+                        } else {
+                            PrintOutput(node, {{0, 2}, {1, 5}, {3}, {4}, {6}, {7}});
+                        }
+                    } else if (aggregate(node, {0, 4}, false) && aggregate(node, {1, 3}, false)) {
+                        if (aggregate(node, {2, 6}, false) && aggregate(node, {5, 7}, false)) {
+                            PrintOutput(node, {{0, 4}, {1, 3}, {2, 6}, {5, 7}});
+                        } else if (aggregate(node, {6, 7}, false)) {
+                            PrintOutput(node, {{0, 4}, {1, 3}, {6, 7}, {2}, {5}});
+                        } else {
+                            PrintOutput(node, {{0, 4}, {1, 3}, {2}, {5}, {6}, {7}});
+                        }
+                    } else {
+                        PrintOutput(node, {{0, 1}});
+                        (aggregate(node, {2, 3}) && (n_take_one_aggregate(node, q, 5) || segregate(node, q, sides[5]))) ||
+                        (aggregate(node, {4, 5}) && (n_take_one_aggregate(node, q, 4) || segregate(node, q, sides[4]))) ||
+                        (aggregate(node, {2, 6}) && ((aggregate(node, {3, 7}) && segregate(node, q, {4, 5})) ||
+                                                     (aggregate(node, {5, 7}) && segregate(node, q, {3, 4})) ||
+                                                     segregate(node, q, {3, 4, 5, 7}))) ||
+                        (aggregate(node, {3, 7}) && ((aggregate(node, {4, 6}) && segregate(node, q, {2, 5})) ||
+                                                     segregate(node, q, {2, 4, 5, 6}))) ||
+                        (aggregate(node, {4, 6}) && ((aggregate(node, {5, 7}) && segregate(node, q, {2, 3})) ||
+                                                     segregate(node, q, {2, 3, 5, 7}))) ||
+                        (aggregate(node, {5, 7}) && segregate(node, q, {2, 3, 4, 6})) ||
+                        (aggregate(node, {6, 7}) && segregate(node, q, {2, 3, 4, 5})) ||
+                        segregate(node, q, {2, 3, 4, 5, 6, 7});
+                    }
+                    break;
+            }
+            return true;
+        }
     }
     return false;
 }

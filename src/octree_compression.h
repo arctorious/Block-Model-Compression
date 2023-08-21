@@ -27,6 +27,7 @@ private:
                                                              {{1, 3}, {1, 5}, {3, 7}, {5, 7}}, 
                                                              {{2, 3}, {2, 6}, {3, 7}, {6, 7}}, 
                                                              {{4, 5}, {4, 6}, {5, 7}, {6, 7}}};
+    std::vector<std::vector<int>> edges = {{0, 1}, {0, 2}, {0, 4}, {1, 3}, {1, 5}, {2, 3}, {2, 6}, {3, 7}, {4, 5}, {4, 6}, {5, 7}, {6, 7}};
 
 public:
     /**
@@ -82,6 +83,8 @@ public:
      * @return false 
      */
     bool n_take_one_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, int side = -1);
+    
+    bool edge_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q);
     
     /**
      * @brief Individually output / process the sub-blocks
