@@ -18,7 +18,9 @@
 class OctreeCompression : public Compression
 {
 private:
+    // The octants of each side of the block
     std::vector<std::vector<int>> sides = {{0, 1, 2, 3}, {0, 1, 4, 5}, {0, 2, 4, 6}, {1, 3, 5, 7}, {2, 3, 6, 7}, {4, 5, 6, 7}};
+    // The edges of each side of the block
     std::vector<std::vector<std::vector<int>>> side_edges = {{{0, 1}, {0, 2}, {1, 3}, {2, 3}}, 
                                                              {{0, 1}, {0, 4}, {1, 5}, {4, 5}}, 
                                                              {{0, 2}, {0, 4}, {2, 6}, {4, 6}}, 
