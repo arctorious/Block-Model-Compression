@@ -50,6 +50,15 @@ public:
      * Overrides the virtual function from the Compression class.
      */
     void CompressBlock(int x_start, int y_start, int z_start) override;
+
+    using Compression::PrintOutput;
+    
+    /**
+     * @brief Prints the output of the given list of aggregated sub-blocks.
+     * @param node 
+     * @param list 
+     */
+    void PrintOutput(OctreeNode& node, std::vector<std::vector<int>> list);
     
     /**
      * @brief Check if the given sub-blocks can be aggregated. If so, output the current block
@@ -60,7 +69,7 @@ public:
      * @return true if the given sub-blocks can be aggregated
      * @return false otherwise
      */
-    bool aggregate(OctreeNode& node, std::vector<int> cells);
+    bool aggregate(OctreeNode& node, std::vector<int> cells, bool print = true);
     
     /**
      * @brief Check if the subblocks of (n-1) dimensions can be aggregated. If so, output the current block

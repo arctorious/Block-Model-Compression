@@ -26,7 +26,19 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
     }
 }
 
-bool OctreeCompression::aggregate(OctreeNode& node, std::vector<int> cells) {
+void OctreeCompression::PrintOutput(OctreeNode& node, std::vector<std::vector<int>> list) {
+    for (std::vector<int>& cells : list) {
+        PrintOutput(node.x_starts[cells[0]],                                                                                // x_start
+                    node.y_starts[cells[0]],                                                                                // y_start
+                    node.z_starts[cells[0]]+current_level,                                                                  // z_start
+                    node.x_ends[cells[cells.size() - 1]]-node.x_starts[cells[0]]+1,                                         // x_size
+                    node.y_ends[cells[cells.size() - 1]]-node.y_starts[cells[0]]+1,                                         // y_size
+                    node.z_ends[cells[cells.size() - 1]]-node.z_starts[cells[0]]+1,                                         // z_size
+                    (*myTagTable)[(*mySlices)[node.z_starts[cells[0]]][node.y_starts[cells[0]]][node.x_starts[cells[0]]]]); // tag
+    }
+}
+
+bool OctreeCompression::aggregate(OctreeNode& node, std::vector<int> cells, bool print) {
     if (node.homogeneity[cells[0]] == false) {
         return false;
     }
@@ -36,13 +48,9 @@ bool OctreeCompression::aggregate(OctreeNode& node, std::vector<int> cells) {
             return false;
         }
     }
-    PrintOutput(node.x_starts[cells[0]],                                                                                // x_start
-                node.y_starts[cells[0]],                                                                                // y_start
-                node.z_starts[cells[0]]+current_level,                                                                  // z_start
-                node.x_ends[cells[cells.size() - 1]]-node.x_starts[cells[0]]+1,                                         // x_size
-                node.y_ends[cells[cells.size() - 1]]-node.y_starts[cells[0]]+1,                                         // y_size
-                node.z_ends[cells[cells.size() - 1]]-node.z_starts[cells[0]]+1,                                         // z_size
-                (*myTagTable)[(*mySlices)[node.z_starts[cells[0]]][node.y_starts[cells[0]]][node.x_starts[cells[0]]]]); // tag
+    if (print) {
+        PrintOutput(node, {cells});
+    }
     return true;
 }
 
