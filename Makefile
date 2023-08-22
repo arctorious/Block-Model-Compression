@@ -2,15 +2,15 @@ TIMER_FLAG =
 COMPILER = g++
 EXEC = main.out
 ALGORITHM =
+INPUT = tests/the_intro_one_32768_4x4x4.csv
 
-.PHONY: default run run-simple run-runlength run-octree time time-simple time-runlength time-octree titan-linux titan-arch-linux runner-linux
+.PHONY: build run run-simple run-runlength run-octree time time-simple time-runlength time-octree titan-linux titan-arch-linux runner-linux
 
-default:
+build:
 	${COMPILER} -O3 -std=c++11 -pthread -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp
 
-run:
-	make
-	./build/main.out < build/the_intro_one_32768_4x4x4.csv $(ALGORITHM) $(TIMER_FLAG)
+run: build
+	./build/main.out < ${INPUT} $(ALGORITHM) $(TIMER_FLAG)
 
 run-simple:
 	make run ALGORITHM=-s
@@ -41,4 +41,4 @@ titan-arch-linux:
 
 runner-linux:
 	cd build; \
-	wine python runner.py BLOCK11.exe the_intro_one_32768_4x4x4.csv
+	wine python runner.py BLOCK11.exe ../${INPUT}
