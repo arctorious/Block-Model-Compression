@@ -27,7 +27,21 @@ private:
                                                              {{1, 3}, {1, 5}, {3, 7}, {5, 7}}, 
                                                              {{2, 3}, {2, 6}, {3, 7}, {6, 7}}, 
                                                              {{4, 5}, {4, 6}, {5, 7}, {6, 7}}};
-    std::vector<std::vector<int>> edges = {{0, 1}, {0, 2}, {0, 4}, {1, 3}, {1, 5}, {2, 3}, {2, 6}, {3, 7}, {4, 5}, {4, 6}, {5, 7}, {6, 7}};
+    // The 12 edges of the block
+    std::vector<std::vector<int>> pairs = {{0, 1}, {0, 2}, {0, 4}, {1, 3}, {1, 5}, {2, 3}, {2, 6}, {3, 7}, {4, 5}, {4, 6}, {5, 7}, {6, 7}};
+    // The octants of the block in relation to each pair
+    std::vector<std::vector<int>> pair_octants = {{0, 1, 2, 3, 4, 5, 6, 7},
+                                                  {0, 2, 4, 6, 1, 3, 5, 7},
+                                                  {0, 4, 1, 5, 2, 6, 3, 7},
+                                                  {1, 3, 0, 2, 5, 7, 4, 6},
+                                                  {1, 5, 3, 7, 0, 4, 2, 6},
+                                                  {2, 3, 6, 7, 0, 1, 4, 5},
+                                                  {2, 6, 0, 4, 3, 7, 1, 5},
+                                                  {3, 7, 2, 6, 1, 5, 0, 4},
+                                                  {4, 5, 0, 1, 6, 7, 2, 3},
+                                                  {4, 6, 5, 7, 0, 2, 1, 3},
+                                                  {5, 7, 1, 3, 4, 6, 0, 2},
+                                                  {6, 7, 4, 5, 2, 3, 0, 1}};
 
 public:
     /**
@@ -84,6 +98,14 @@ public:
      */
     bool n_take_one_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, int side = -1);
     
+    /**
+     * @brief Check if any of the edges can be aggregated. If so, output the current block
+     * 
+     * @param node 
+     * @param q 
+     * @return true 
+     * @return false 
+     */
     bool edge_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q);
     
     /**

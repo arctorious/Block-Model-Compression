@@ -1,5 +1,6 @@
 #include <iostream>
 #include "octree_compression.h"
+#include <algorithm>
 
 OctreeCompression::OctreeCompression(std::vector<std::vector<std::vector<char>>>* Slices,
                                      std::unordered_map<char, std::string>* TagTable,
@@ -29,6 +30,7 @@ void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
 
 void OctreeCompression::PrintOutput(OctreeNode& node, std::vector<std::vector<int>> list) {
     for (std::vector<int>& cells : list) {
+        std::sort(cells.begin(), cells.end());
         PrintOutput(node.x_starts[cells[0]],                                                                                // x_start
                     node.y_starts[cells[0]],                                                                                // y_start
                     node.z_starts[cells[0]]+current_level,                                                                  // z_start
@@ -69,70 +71,48 @@ bool OctreeCompression::n_take_one_aggregate(OctreeNode& node, std::queue<std::t
 }
 
 bool OctreeCompression::edge_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q) {
-    for (int i = 0; i < 2; i++) {
-        if (aggregate(node, edges[i], false)) {
-            switch (i) {
-                case 0:
-                    if (aggregate(node, {0, 2}, false) && aggregate(node, {1, 5}, false)) {
-                        if (aggregate(node, {3, 7}, false) && aggregate(node, {4, 6}, false)) {
-                            PrintOutput(node, {{0, 2}, {1, 5}, {3, 7}, {4, 6}});
-                        } else if (aggregate(node, {6, 7}, false)) {
-                            PrintOutput(node, {{0, 2}, {1, 5}, {6, 7}, {3}, {4}});
-                        } else {
-                            PrintOutput(node, {{0, 2}, {1, 5}, {3}, {4}, {6}, {7}});
-                        }
-                    } else if (aggregate(node, {0, 4}, false) && aggregate(node, {1, 3}, false)) {
-                        if (aggregate(node, {2, 6}, false) && aggregate(node, {5, 7}, false)) {
-                            PrintOutput(node, {{0, 4}, {1, 3}, {2, 6}, {5, 7}});
-                        } else if (aggregate(node, {6, 7}, false)) {
-                            PrintOutput(node, {{0, 4}, {1, 3}, {6, 7}, {2}, {5}});
-                        } else {
-                            PrintOutput(node, {{0, 4}, {1, 3}, {2}, {5}, {6}, {7}});
-                        }
-                    } else {
-                        PrintOutput(node, {{0, 1}});
-                        (aggregate(node, {2, 3}) && (n_take_one_aggregate(node, q, 5) || segregate(node, q, sides[5]))) ||
-                        (aggregate(node, {4, 5}) && (n_take_one_aggregate(node, q, 4) || segregate(node, q, sides[4]))) ||
-                        (aggregate(node, {2, 6}) && ((aggregate(node, {3, 7}) && segregate(node, q, {4, 5})) ||
-                                                     (aggregate(node, {5, 7}) && segregate(node, q, {3, 4})) ||
-                                                     segregate(node, q, {3, 4, 5, 7}))) ||
-                        (aggregate(node, {3, 7}) && ((aggregate(node, {4, 6}) && segregate(node, q, {2, 5})) ||
-                                                     segregate(node, q, {2, 4, 5, 6}))) ||
-                        (aggregate(node, {4, 6}) && ((aggregate(node, {5, 7}) && segregate(node, q, {2, 3})) ||
-                                                     segregate(node, q, {2, 3, 5, 7}))) ||
-                        (aggregate(node, {5, 7}) && segregate(node, q, {2, 3, 4, 6})) ||
-                        (aggregate(node, {6, 7}) && segregate(node, q, {2, 3, 4, 5})) ||
-                        segregate(node, q, {2, 3, 4, 5, 6, 7});
-                    }
-                    break;
-                case 1:
-                    if (aggregate(node, {0, 4}, false) && aggregate(node, {2, 3}, false)) {
-                        if (aggregate(node, {1, 5}, false) && aggregate(node, {6, 7}, false)) {
-                            PrintOutput(node, {{0, 4}, {2, 3}, {1, 5}, {6, 7}});
-                        } else if (aggregate(node, {5, 7}, false)) {
-                            PrintOutput(node, {{0, 4}, {2, 3}, {5, 7}, {1}, {6}});
-                        } else {
-                            PrintOutput(node, {{0, 4}, {2, 3}, {1}, {5}, {6}, {7}});
-                        }
-                    } else {
-                        PrintOutput(node, {{0, 2}});
-                        (aggregate(node, {1, 3}) && (n_take_one_aggregate(node, q, 5) || segregate(node, q, sides[5]))) ||
-                        (aggregate(node, {4, 6}) && (n_take_one_aggregate(node, q, 3) || segregate(node, q, sides[3]))) ||
-                        (aggregate(node, {1, 5}) && ((aggregate(node, {3, 7}) && segregate(node, q, {4, 6})) ||
-                                                     (aggregate(node, {6, 7}) && segregate(node, q, {3, 4})) ||
-                                                     segregate(node, q, {3, 4, 6, 7}))) ||
-                        (aggregate(node, {3, 7}) && ((aggregate(node, {4, 5}) && segregate(node, q, {1, 6})) ||
-                                                     segregate(node, q, {1, 4, 5, 6}))) ||
-                        (aggregate(node, {4, 5}) && ((aggregate(node, {6, 7}) && segregate(node, q, {1, 3})) ||
-                                                     segregate(node, q, {1, 3, 6, 7}))) ||
-                        (aggregate(node, {6, 7}) && segregate(node, q, {1, 3, 4, 5})) ||
-                        (aggregate(node, {5, 7}) && segregate(node, q, {1, 3, 4, 6})) ||
-                        segregate(node, q, {1, 3, 4, 5, 6, 7});
-                    }
-                    break;
-            }
-            return true;
+    for (int i = 0; i < 12; i++) {
+        if (!aggregate(node, {pair_octants[i][0], pair_octants[i][1]}, false)) {
+            continue;
         }
+        if (aggregate(node, {pair_octants[i][0], pair_octants[i][2]}, false) && aggregate(node, {pair_octants[i][1], pair_octants[i][5]}, false)) {
+            if (aggregate(node, {pair_octants[i][3], pair_octants[i][7]}, false) && aggregate(node, {pair_octants[i][4], pair_octants[i][6]}, false)) {
+                PrintOutput(node, {{pair_octants[i][0], pair_octants[i][2]}, {pair_octants[i][1], pair_octants[i][5]}, {pair_octants[i][3], pair_octants[i][7]}, {pair_octants[i][4], pair_octants[i][6]}});
+            } else if (aggregate(node, {pair_octants[i][6], pair_octants[i][7]}, false)) {
+                PrintOutput(node, {{pair_octants[i][0], pair_octants[i][2]}, {pair_octants[i][1], pair_octants[i][5]}, {pair_octants[i][6], pair_octants[i][7]}, {pair_octants[i][3]}, {pair_octants[i][4]}});
+            } else {
+                PrintOutput(node, {{pair_octants[i][0], pair_octants[i][2]}, {pair_octants[i][1], pair_octants[i][5]}, {pair_octants[i][3]}, {pair_octants[i][4]}, {pair_octants[i][6]}, {pair_octants[i][7]}});
+            }
+        } else if (aggregate(node, {pair_octants[i][0], pair_octants[i][4]}, false) && aggregate(node, {pair_octants[i][1], pair_octants[i][3]}, false)) {
+            if (aggregate(node, {pair_octants[i][2], pair_octants[i][6]}, false) && aggregate(node, {pair_octants[i][5], pair_octants[i][7]}, false)) {
+                PrintOutput(node, {{pair_octants[i][0], pair_octants[i][4]}, {pair_octants[i][1], pair_octants[i][3]}, {pair_octants[i][2], pair_octants[i][6]}, {pair_octants[i][5], pair_octants[i][7]}});
+            } else if (aggregate(node, {pair_octants[i][6], pair_octants[i][7]}, false)) {
+                PrintOutput(node, {{pair_octants[i][0], pair_octants[i][4]}, {pair_octants[i][1], pair_octants[i][3]}, {pair_octants[i][6], pair_octants[i][7]}, {pair_octants[i][2]}, {pair_octants[i][5]}});
+            } else {
+                PrintOutput(node, {{pair_octants[i][0], pair_octants[i][4]}, {pair_octants[i][1], pair_octants[i][3]}, {pair_octants[i][2]}, {pair_octants[i][5]}, {pair_octants[i][6]}, {pair_octants[i][7]}});
+            }
+        } else {
+            PrintOutput(node, {{pair_octants[i][0], pair_octants[i][1]}});
+            (aggregate(node, {pair_octants[i][2], pair_octants[i][3]}) && ((aggregate(node, {pair_octants[i][4], pair_octants[i][5]}) && (aggregate(node, {pair_octants[i][6], pair_octants[i][7]}) || segregate(node, q, {pair_octants[i][6], pair_octants[i][7]})))    ||
+                                                                           (aggregate(node, {pair_octants[i][6], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][4], pair_octants[i][5]}))                                                                   ||
+                                                                           (aggregate(node, {pair_octants[i][4], pair_octants[i][6]}) && (aggregate(node, {pair_octants[i][5], pair_octants[i][7]}) || segregate(node, q, {pair_octants[i][5], pair_octants[i][7]})))    ||
+                                                                           (aggregate(node, {pair_octants[i][5], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][4], pair_octants[i][6]}))))                                                              ||
+            (aggregate(node, {pair_octants[i][4], pair_octants[i][5]}) && ((aggregate(node, {pair_octants[i][2], pair_octants[i][3]}) && (aggregate(node, {pair_octants[i][6], pair_octants[i][7]}) || segregate(node, q, {pair_octants[i][6], pair_octants[i][7]})))    ||
+                                                                           (aggregate(node, {pair_octants[i][6], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][2], pair_octants[i][3]}))                                                                   ||
+                                                                           (aggregate(node, {pair_octants[i][2], pair_octants[i][6]}) && (aggregate(node, {pair_octants[i][3], pair_octants[i][7]}) || segregate(node, q, {pair_octants[i][3], pair_octants[i][7]})))    ||
+                                                                           (aggregate(node, {pair_octants[i][3], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][2], pair_octants[i][6]}))))                                                              ||
+            (aggregate(node, {pair_octants[i][2], pair_octants[i][6]}) && ((aggregate(node, {pair_octants[i][3], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][4], pair_octants[i][5]}))                                                                   ||
+                                                                           (aggregate(node, {pair_octants[i][5], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][3], pair_octants[i][4]}))                                                                   ||
+                                                                           segregate(node, q, {pair_octants[i][3], pair_octants[i][4], pair_octants[i][5], pair_octants[i][7]})))                                                                                     ||
+            (aggregate(node, {pair_octants[i][3], pair_octants[i][7]}) && ((aggregate(node, {pair_octants[i][4], pair_octants[i][6]}) && segregate(node, q, {pair_octants[i][2], pair_octants[i][5]}))                                                                   ||
+                                                                           segregate(node, q, {pair_octants[i][2], pair_octants[i][4], pair_octants[i][5], pair_octants[i][6]})))                                                                                     ||
+            (aggregate(node, {pair_octants[i][4], pair_octants[i][6]}) && ((aggregate(node, {pair_octants[i][5], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][2], pair_octants[i][3]}))                                                                   ||
+                                                                           segregate(node, q, {pair_octants[i][2], pair_octants[i][3], pair_octants[i][5], pair_octants[i][7]})))                                                                                     ||
+            (aggregate(node, {pair_octants[i][5], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][2], pair_octants[i][3], pair_octants[i][4], pair_octants[i][6]}))                                                                                       ||
+            (aggregate(node, {pair_octants[i][6], pair_octants[i][7]}) && segregate(node, q, {pair_octants[i][2], pair_octants[i][3], pair_octants[i][4], pair_octants[i][5]}))                                                                                       ||
+            segregate(node, q, {pair_octants[i][2], pair_octants[i][3], pair_octants[i][4], pair_octants[i][5], pair_octants[i][6], pair_octants[i][7]});
+        }
+        return true;
     }
     return false;
 }
