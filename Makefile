@@ -27,7 +27,7 @@ time-runlength:
 	make run ALGORITHM=-r TIMER_FLAG=-t
 
 titan-linux:
-	make COMPILER="x86_64-w64-mingw32-g++-posix -static" EXEC=BLOCK11.exe
+	make COMPILER="x86_64-w64-mingw32-g++ -posix -static" EXEC=BLOCK11.exe
 	
 runner-linux-intro:
 	cd build; \
