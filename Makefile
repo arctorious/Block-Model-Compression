@@ -28,3 +28,19 @@ time-runlength:
 
 titan-linux:
 	make COMPILER="x86_64-w64-mingw32-g++-posix -static" EXEC=BLOCK11.exe
+	
+runner-linux-intro:
+	cd build; \
+	wine python runner.py BLOCK11.exe intro.csv -r -s
+
+runner-linux-fast:
+	cd build; \
+	wine python runner.py BLOCK11.exe fastOne.csv -r -s
+
+runner-macos-intro:
+	cd build; \
+	wine64 python runner.py BLOCK11.exe intro.csv -r -s
+
+runner-macos-fast:
+	cd build; \
+	wine64 python runner.py BLOCK11.exe fastOne.csv -r -s
