@@ -31,16 +31,16 @@ titan-linux:
 	
 runner-linux-intro:
 	cd build; \
-	wine python runner.py BLOCK11.exe intro.csv -r -s
+	wine python runner.py BLOCK11.exe the_intro_one_32768_4x4x4.csv -r -s
 
 runner-linux-fast:
 	cd build; \
-	wine python runner.py BLOCK11.exe fastOne.csv -r -s
+	wine python runner.py BLOCK11.exe the_fast_one_376000_2x2x2.csv -r -s
 
 runner-macos-intro:
 	cd build; \
-	wine64 python runner.py BLOCK11.exe intro.csv -r -s
+	wine64 python runner.py BLOCK11.exe the_intro_one_32768_4x4x4.csv -r -s
 
 runner-macos-fast:
 	cd build; \
-	wine64 python runner.py BLOCK11.exe fastOne.csv -r -s
+	wine64 python runner.py BLOCK11.exe the_fast_one_376000_2x2x2.csv -r -s
