@@ -92,6 +92,7 @@ protected:
     std::unordered_map<char, std::string>* myTagTable; ///< Pointer to the tag table mapping.
     Dimensions* myDimensions; ///< Pointer to the dimensions object.
     int current_level; ////< Current level of proccessing with refrence o z_parent.
+    int total_area = 0;
 
 private:
     int x_start; ///< Starting x coordinate.

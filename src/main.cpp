@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     // SPEEED
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
-
+    freopen("output.txt", "w", stdout);
     char algorithm = 'o';
     bool timerEnabled = false;
 

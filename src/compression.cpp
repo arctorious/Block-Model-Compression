@@ -15,14 +15,22 @@ void Compression::Compress(int z_start) {
     current_level = z_start;
 
     // Divide the work into chunks and add to the work queue
-    for (int i = 0; i < x_blocks; i++) {
-        for (int j = 0; j < y_blocks; j++){
+    for (int i = 0; i < y_blocks; i++) {
+        for (int j = 0; j < x_blocks; j++){
             workQueue.push({0, y_start, x_start});
-            y_start += myDimensions->y_parent;
+            x_start += myDimensions->x_parent;
         }
-        y_start = 0;
-        x_start += myDimensions->x_parent;
+        x_start = 0;
+        y_start += myDimensions->y_parent;
     }
+
+    // std::vector<int> chunk_pos;
+    // while (true) {
+    //     if (workQueue.empty()) break; // No more work
+    //     chunk_pos = workQueue.front();
+    //     workQueue.pop();
+    //     CompressBlock(chunk_pos[0], chunk_pos[1], chunk_pos[2]);
+    // }
 
     // Create and launch threads
     unsigned num_threads = std::thread::hardware_concurrency(); // Number of available hardware threads
@@ -35,6 +43,7 @@ void Compression::Compress(int z_start) {
     for (auto& t : threads) {
         t.join();
     }
+    // PrintOutput(total_area,total_area,total_area,total_area,total_area,total_area,"");
 }
 
 void Compression::WorkerFunction() {
@@ -56,5 +65,5 @@ std::string Compression::getTag(char key){
 
 void Compression::PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label) {
     std::lock_guard<std::mutex> lock(coutMutex);
-    std::cout << x_position << "," << y_position << "," << z_position << "," << x_size << "," << y_size << "," << z_size << "," << label << '\n';
+    std::cout << x_position << "," << y_position << "," << z_position << "," << x_size << "," << y_size << "," << z_size << "," << label << std::endl;
 }

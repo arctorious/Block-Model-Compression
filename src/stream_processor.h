@@ -16,6 +16,7 @@
 #include "runlength_encoding.h"
 #include "simple_compression.h"
 #include "dimensions.hpp"
+#include "dp_compression.h"
 
 /**
  * @class StreamProcessor
