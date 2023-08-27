@@ -8,7 +8,7 @@ RunLengthEncoding::RunLengthEncoding(std::vector<std::vector<std::vector<char>>>
 {}
 
 
-void RunLengthEncoding::CompressBlock(int z_start, int x_start, int y_start) {
+void RunLengthEncoding::CompressBlock(int x_start, int y_start, int z_start) {
 
     // Specifying the end indexes of this parent block
     int x_end = x_start + myDimensions->x_parent;
@@ -22,25 +22,25 @@ void RunLengthEncoding::CompressBlock(int z_start, int x_start, int y_start) {
     //i = depth, j = vertical, k = horizontal
 
     //TODO: ask if y_start can == y_end
-    for (int i = z_start; i < z_end; i++){
-        for (int j = x_start; j < x_end; j++){
-            char saved_key = (*mySlices)[i][j][y_start];
+    for (int z = z_start; z < z_end; z++){
+        for (int y = y_start; y < y_end; y++){
+            char saved_key = (*mySlices)[z][y][x_start];
             int key_count = 1;
-            int starting_k = y_start;
+            int starting_x = x_start;
 
-            for (int k = y_start+1; k < y_end; k++){
-                char current_key = (*mySlices)[i][j][k];
+            for (int x = x_start+1; x < x_end; x++){
+                char current_key = (*mySlices)[z][y][x];
                 if(saved_key == current_key)
                     key_count++;
                 else{
-                    PrintOutput(starting_k, j, i + current_level, key_count, 1, 1, getTag(saved_key));
+                    PrintOutput(starting_x, y, z + current_level, key_count, 1, 1, getTag(saved_key));
     
                     saved_key = current_key;
-                    starting_k = k;
+                    starting_x = x;
                     key_count = 1;                    
                 }
             }
-            PrintOutput(starting_k, j, i + current_level, key_count, 1, 1, getTag(saved_key));
+            PrintOutput(starting_x, y, z + current_level, key_count, 1, 1, getTag(saved_key));
         }
     }
 
