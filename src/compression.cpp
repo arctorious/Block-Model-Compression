@@ -18,10 +18,10 @@ void Compression::Compress(int z_start) {
     for (int y = 0; y < y_blocks; y++) {
         for (int x = 0; x < x_blocks; x++){
             workQueue.push({x_start, y_start, 0});
-            y_start += myDimensions->y_parent;
+            x_start += myDimensions->x_parent;
         }
-        y_start = 0;
-        x_start += myDimensions->x_parent;
+        x_start = 0;
+        y_start += myDimensions->y_parent;
     }
 
     // Create and launch threads
