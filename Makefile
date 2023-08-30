@@ -38,7 +38,19 @@ titan-linux:
 
 titan-arch-linux:
 	make COMPILER="x86_64-w64-mingw32-g++ -static" EXEC=BLOCK11.exe
-
-runner-linux:
+	
+runner-linux-intro:
 	cd build; \
-	wine python runner.py BLOCK11.exe ../${INPUT}
+	wine python runner.py BLOCK11.exe the_intro_one_32768_4x4x4.csv -r -s
+
+runner-linux-fast:
+	cd build; \
+	wine python runner.py BLOCK11.exe the_fast_one_376000_2x2x2.csv -r -s
+
+runner-macos-intro:
+	cd build; \
+	wine64 python runner.py BLOCK11.exe the_intro_one_32768_4x4x4.csv -r -s
+
+runner-macos-fast:
+	cd build; \
+	wine64 python runner.py BLOCK11.exe the_fast_one_376000_2x2x2.csv -r -s
