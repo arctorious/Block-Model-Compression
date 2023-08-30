@@ -8,7 +8,7 @@ OctreeCompression::OctreeCompression(std::vector<std::vector<std::vector<char>>>
     : Compression(Slices, TagTable, Dimensions)
 {}
 
-void OctreeCompression::CompressBlock(int z_start, int y_start, int x_start) {
+void OctreeCompression::CompressBlock(int x_start, int y_start, int z_start) {
 
     std::queue<std::tuple<int, int, int, int, int, int>> q;
     q.push(std::make_tuple(z_start,
