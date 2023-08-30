@@ -13,8 +13,10 @@ Compression* StreamProcessor::createCompressionAlgorithm(const char name) {
             return new SimpleCompression(&mySlices, &myTagTable, &myDimensions);
         case 'r':
             return new RunLengthEncoding(&mySlices, &myTagTable, &myDimensions);
+        case 'o':
+            return new OctreeCompression(&mySlices, &myTagTable, &myDimensions);
         default:
-            return new RunLengthEncoding(&mySlices, &myTagTable, &myDimensions);
+            return new OctreeCompression(&mySlices, &myTagTable, &myDimensions);
     }
 }
 
