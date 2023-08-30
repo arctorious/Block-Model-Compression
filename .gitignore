@@ -2,4 +2,5 @@
 build/*
 !build/.gitkeep
 !build/runner.py
+!build/2023_runnerB.py
 !build/2023_block_coalescing_reference_implementation.exe
