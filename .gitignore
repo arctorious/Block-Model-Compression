@@ -1,6 +1,6 @@
 .vscode
 build/*
 !build/.gitkeep
-!build/the_intro_one_32768_4x4x4.csv
 !build/runner.py
+!build/2023_runnerB.py
 !build/2023_block_coalescing_reference_implementation.exe
