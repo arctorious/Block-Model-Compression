@@ -2,7 +2,6 @@ TIMER_FLAG =
 COMPILER = g++
 EXEC = main.out
 ALGORITHM =
-INPUT = tests/the_intro_one_32768_4x4x4.csv
 
 .PHONY: build run run-simple run-runlength run-octree time time-simple time-runlength time-octree titan-linux titan-arch-linux runner-linux
 
