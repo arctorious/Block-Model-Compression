@@ -18,7 +18,7 @@ DynamicProgrammingCompression::DynamicProgrammingCompression(std::vector<std::ve
     : Compression(Slices, TagTable, Dimensions)
 {}
 
-NeighboringSameKeyStreaks DynamicProgrammingCompression::getNeighbouringSameKeyStreaks(int z, int y, int x, const std::vector<std::vector<std::vector<DPNode>>>& dp) {
+NeighboringSameKeyStreaks DynamicProgrammingCompression::getNeighbouringSameKeyStreaks(int x, int y, int z, const std::vector<std::vector<std::vector<DPNode>>>& dp) {
     NeighboringSameKeyStreaks neighbours = {1, 1, 1}; // Initialize all values to 1 (counting the current node)
     char key = (*mySlices)[z][y][x];
 
@@ -46,7 +46,7 @@ NeighboringSameKeyStreaks DynamicProgrammingCompression::getNeighbouringSameKeyS
 }
 
 
-SubBlock DynamicProgrammingCompression::findBestSubBlock(int z, int y, int x, const std::vector<std::vector<std::vector<DPNode>>>& dp) {
+SubBlock DynamicProgrammingCompression::findBestSubBlock(int x, int y, int z, const std::vector<std::vector<std::vector<DPNode>>>& dp) {
     
     // Get the local coordinates for the dp table
     int local_z = z % myDimensions->z_parent;
@@ -243,29 +243,26 @@ void DynamicProgrammingCompression::startSectioning(int x_start, int y_start, in
     
 }
 
-void DynamicProgrammingCompression::CompressBlock(int z_start, int y_start, int x_start) {
+void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int z_start) {
 
     // Specifying the end indexes of this parent block
     int x_end = x_start + myDimensions->x_parent;
     int y_end = y_start + myDimensions->y_parent;
     int z_end = z_start + myDimensions->z_parent;
-    
-    // Implement the specific compression algorithm for a block here
-    //i = depth, y = vertical, x = horizontal
 
     // chunky boi
     std::vector<std::vector<std::vector<DPNode>>> dp(myDimensions->z_parent, std::vector<std::vector<DPNode>>(myDimensions->y_parent, std::vector<DPNode>(myDimensions->x_parent)));
 
 
-    int local_z = 0;
-    int local_y = 0;
     int local_x = 0;
+    int local_y = 0;
+    int local_z = 0;
     total_area = 0;
     for (int z = z_start; z < z_end; z++){
         for (int y = y_start; y < y_end; y++){
             for (int x = x_start; x < x_end; x++){
-                dp[local_z][local_y][local_x].neighbours = getNeighbouringSameKeyStreaks(z, y, x, dp);
-                dp[local_z][local_y][local_x].sub_block = findBestSubBlock(z, y, x, dp);
+                dp[local_z][local_y][local_x].neighbours = getNeighbouringSameKeyStreaks(x, y, z, dp);
+                dp[local_z][local_y][local_x].sub_block = findBestSubBlock(x, y, z, dp);
                 local_x = (local_x + 1) % myDimensions->x_parent;
             }
             local_y = (local_y + 1) % myDimensions->y_parent;
