@@ -24,8 +24,8 @@ NeighboringSameKeyStreaks DynamicProgrammingCompression::getNeighbouringSameKeyS
 
     // Get the local coordinates for the dp table
     int local_z = z % myDimensions->z_parent;
-    int local_y = y % myDimensions->x_parent;
-    int local_x = x % myDimensions->y_parent;
+    int local_y = y % myDimensions->y_parent;
+    int local_x = x % myDimensions->x_parent;
 
     // Check for the inward neighbor
     if (local_z != 0 && (*mySlices)[z-1][y][x] == key) {
@@ -50,8 +50,8 @@ SubBlock DynamicProgrammingCompression::findBestSubBlock(int x, int y, int z, co
     
     // Get the local coordinates for the dp table
     int local_z = z % myDimensions->z_parent;
-    int local_y = y % myDimensions->x_parent;
-    int local_x = x % myDimensions->y_parent;
+    int local_y = y % myDimensions->y_parent;
+    int local_x = x % myDimensions->x_parent;
 
     // 1D subblocks
     SubBlock inward_1d = {1, 1, dp[local_z][local_y][local_x].neighbours.inward};
