@@ -291,3 +291,29 @@ void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int 
     // } 
 }
 
+// function that print the dp table
+void DynamicProgrammingCompression::PrintDPTableSubBlocks(std::vector<std::vector<std::vector<DPNode>>>& dp){
+    for (unsigned int z = 0; z < dp.size(); z++){
+        for (unsigned int y = 0; y < dp[0].size(); y++){
+            for (unsigned int x = 0; x < dp[0][0].size(); x++){
+                std::cout<<"<"<<dp[z][y][x].sub_block.left<<" "<<dp[z][y][x].sub_block.up<<" "<<dp[z][y][x].sub_block.inward<<">"<< " ";
+            }
+            std::cout<<std::endl;
+        }
+        std::cout<<std::endl;
+    }
+}
+
+// funciton to print the dp table neighbours
+void DynamicProgrammingCompression::PrintDPTableNeighbours(std::vector<std::vector<std::vector<DPNode>>>& dp){
+    for (unsigned int z = 0; z < dp.size(); z++){
+        for (unsigned int y = 0; y < dp[0].size(); y++){
+            for (unsigned int x = 0; x < dp[0][0].size(); x++){
+                std::cout<<"<"<<dp[z][y][x].neighbours.left<<" "<<dp[z][y][x].neighbours.up<<" "<<dp[z][y][x].neighbours.inward<<">"<< " ";
+            }
+            std::cout<<std::endl;
+        }
+        std::cout<<std::endl;
+    }
+}
+

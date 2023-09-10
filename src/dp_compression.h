@@ -97,6 +97,20 @@ public:
      * @return SubBlock The best sub block.
      */
     SubBlock findBestSubBlock(int i, int j, int k, const std::vector<std::vector<std::vector<DPNode>>>& dp);
+
+    /**
+     * @brief Prints the subblocks created inside the dynamic programming table.
+     *
+     * @param dp The dynamic programming table.
+     */
+    void PrintDPTableSubBlocks(std::vector<std::vector<std::vector<DPNode>>>& dp);
+
+    /**
+     * @brief Prints the neighbours created inside the dynamic programming table.
+     *
+     * @param dp The dynamic programming table.
+     */
+    void PrintDPTableNeighbours(std::vector<std::vector<std::vector<DPNode>>>& dp);
     
     /**
      * @brief Backtracks the dynamic programming table to print the (optimal? Don't know yet) subblocks.
