@@ -1,24 +1,33 @@
 #include "dp_compression.h"
-#include <csignal>
-#include <iostream>
 
 template <typename T>
-T min(T a, T b) {
+T min(T a, T b)
+{
     return std::min(a, b);
 }
 
 template <typename T, typename... Args>
-T min(T a, T b, Args... args) {
+T min(T a, T b, Args... args)
+{
     return std::min(a, min(b, args...));
 }
 
-DynamicProgrammingCompression::DynamicProgrammingCompression(std::vector<std::vector<std::vector<char>>>* Slices,
-                                     std::unordered_map<char, std::string>* TagTable,
-                                     Dimensions* Dimensions)
-    : Compression(Slices, TagTable, Dimensions)
-{}
+// Overload the += operator for std::vector<PrintNode>
+std::vector<PrintNode> &operator+=(std::vector<PrintNode> &a, const std::vector<PrintNode> &b)
+{
+    a.insert(a.end(), b.begin(), b.end());
+    return a;
+}
 
-NeighboringSameKeyStreaks DynamicProgrammingCompression::getNeighbouringSameKeyStreaks(int x, int y, int z, const std::vector<std::vector<std::vector<DPNode>>>& dp) {
+DynamicProgrammingCompression::DynamicProgrammingCompression(std::vector<std::vector<std::vector<char>>> *Slices,
+                                                             std::unordered_map<char, std::string> *TagTable,
+                                                             Dimensions *Dimensions)
+    : Compression(Slices, TagTable, Dimensions)
+{
+}
+
+NeighboringSameKeyStreaks DynamicProgrammingCompression::getNeighbouringSameKeyStreaks(int x, int y, int z, const std::vector<std::vector<std::vector<DPNode>>> &dp)
+{
     NeighboringSameKeyStreaks neighbours = {1, 1, 1}; // Initialize all values to 1 (counting the current node)
     char key = (*mySlices)[z][y][x];
 
@@ -28,26 +37,29 @@ NeighboringSameKeyStreaks DynamicProgrammingCompression::getNeighbouringSameKeyS
     int local_x = x % myDimensions->x_parent;
 
     // Check for the inward neighbor
-    if (local_z != 0 && (*mySlices)[z-1][y][x] == key) {
-        neighbours.inward = dp[local_z-1][local_y][local_x].neighbours.inward + 1;
+    if (local_z != 0 && (*mySlices)[z - 1][y][x] == key)
+    {
+        neighbours.inward = dp[local_z - 1][local_y][local_x].neighbours.inward + 1;
     }
 
     // Check for the up neighbor
-    if (local_y != 0 && (*mySlices)[z][y-1][x] == key) {
-        neighbours.up = dp[local_z][local_y-1][local_x].neighbours.up + 1;
+    if (local_y != 0 && (*mySlices)[z][y - 1][x] == key)
+    {
+        neighbours.up = dp[local_z][local_y - 1][local_x].neighbours.up + 1;
     }
 
     // Check for the left neighbor
-    if (local_x != 0 && (*mySlices)[z][y][x-1] == key) {
-        neighbours.left = dp[local_z][local_y][local_x-1].neighbours.left + 1;
+    if (local_x != 0 && (*mySlices)[z][y][x - 1] == key)
+    {
+        neighbours.left = dp[local_z][local_y][local_x - 1].neighbours.left + 1;
     }
 
     return neighbours;
 }
 
+SubBlock DynamicProgrammingCompression::findBestSubBlock(int x, int y, int z, const std::vector<std::vector<std::vector<DPNode>>> &dp)
+{
 
-SubBlock DynamicProgrammingCompression::findBestSubBlock(int x, int y, int z, const std::vector<std::vector<std::vector<DPNode>>>& dp) {
-    
     // Get the local coordinates for the dp table
     int local_z = z % myDimensions->z_parent;
     int local_y = y % myDimensions->y_parent;
@@ -59,53 +71,54 @@ SubBlock DynamicProgrammingCompression::findBestSubBlock(int x, int y, int z, co
     SubBlock left_1d = {dp[local_z][local_y][local_x].neighbours.left, 1, 1};
 
     // 2D subblocks
-    SubBlock left_up_2d = {1, 1, 1}; 
+    SubBlock left_up_2d = {1, 1, 1};
     SubBlock inward_left_2d = {1, 1, 1};
-    SubBlock inward_up_2d = {1, 1, 1}; 
+    SubBlock inward_up_2d = {1, 1, 1};
 
     // 3D subblock
     SubBlock diagonal_3d = {1, 1, 1};
 
     // Check for 2d left-up (ceiling) diagonal
-    if (local_y != 0 && local_x != 0 && (*mySlices)[z][y-1][x-1] == (*mySlices)[z][y][x]) {
-        left_up_2d.left = std::min(dp[local_z][local_y][local_x].neighbours.left, dp[local_z][local_y-1][local_x-1].sub_block.left + 1);
-        left_up_2d.up = std::min(dp[local_z][local_y][local_x].neighbours.up, dp[local_z][local_y-1][local_x-1].sub_block.up + 1);
+    if (local_y != 0 && local_x != 0 && (*mySlices)[z][y - 1][x - 1] == (*mySlices)[z][y][x])
+    {
+        left_up_2d.left = std::min(dp[local_z][local_y][local_x].neighbours.left, dp[local_z][local_y - 1][local_x - 1].sub_block.left + 1);
+        left_up_2d.up = std::min(dp[local_z][local_y][local_x].neighbours.up, dp[local_z][local_y - 1][local_x - 1].sub_block.up + 1);
     }
 
     // Check for 2d inward-left diagonal
-    if (local_z != 0 && local_x != 0 && (*mySlices)[z-1][y][x-1] == (*mySlices)[z][y][x]) {
-        inward_left_2d.left = std::min(dp[local_z][local_y][local_x].neighbours.left, dp[local_z-1][local_y][local_x-1].sub_block.left + 1);
-        inward_left_2d.inward = std::min(dp[local_z][local_y][local_x].neighbours.inward, dp[local_z-1][local_y][local_x-1].sub_block.inward + 1);
+    if (local_z != 0 && local_x != 0 && (*mySlices)[z - 1][y][x - 1] == (*mySlices)[z][y][x])
+    {
+        inward_left_2d.left = std::min(dp[local_z][local_y][local_x].neighbours.left, dp[local_z - 1][local_y][local_x - 1].sub_block.left + 1);
+        inward_left_2d.inward = std::min(dp[local_z][local_y][local_x].neighbours.inward, dp[local_z - 1][local_y][local_x - 1].sub_block.inward + 1);
     }
 
     // Check for 2d inward-up diagonal
-    if (local_z != 0 && local_y != 0 && (*mySlices)[z-1][y-1][x] == (*mySlices)[z][y][x]) {
-        inward_up_2d.up = std::min(dp[local_z][local_y][local_x].neighbours.up, dp[local_z-1][local_y-1][local_x].sub_block.up + 1);
-        inward_up_2d.inward = std::min(dp[local_z][local_y][local_x].neighbours.inward, dp[local_z-1][local_y-1][local_x].sub_block.inward + 1);
+    if (local_z != 0 && local_y != 0 && (*mySlices)[z - 1][y - 1][x] == (*mySlices)[z][y][x])
+    {
+        inward_up_2d.up = std::min(dp[local_z][local_y][local_x].neighbours.up, dp[local_z - 1][local_y - 1][local_x].sub_block.up + 1);
+        inward_up_2d.inward = std::min(dp[local_z][local_y][local_x].neighbours.inward, dp[local_z - 1][local_y - 1][local_x].sub_block.inward + 1);
     }
 
     // Check for 3d diagonal
-    if (local_z != 0 && local_y != 0 && local_x != 0 && (*mySlices)[z-1][y-1][x-1] == (*mySlices)[z][y][x]) {
+    if (local_z != 0 && local_y != 0 && local_x != 0 && (*mySlices)[z - 1][y - 1][x - 1] == (*mySlices)[z][y][x])
+    {
         diagonal_3d.left = min(
             dp[local_z][local_y][local_x].neighbours.left,
             left_up_2d.left,
             inward_left_2d.left,
-            dp[local_z-1][local_y-1][local_x-1].sub_block.left + 1
-        );
+            dp[local_z - 1][local_y - 1][local_x - 1].sub_block.left + 1);
 
         diagonal_3d.up = min(
             dp[local_z][local_y][local_x].neighbours.up,
             left_up_2d.up,
             inward_up_2d.up,
-            dp[local_z-1][local_y-1][local_x-1].sub_block.up + 1
-        );
+            dp[local_z - 1][local_y - 1][local_x - 1].sub_block.up + 1);
 
         diagonal_3d.inward = min(
             dp[local_z][local_y][local_x].neighbours.inward,
             inward_left_2d.inward,
             inward_up_2d.inward,
-            dp[local_z-1][local_y-1][local_x-1].sub_block.inward + 1
-        );
+            dp[local_z - 1][local_y - 1][local_x - 1].sub_block.inward + 1);
     }
 
     // Find the best subblock
@@ -113,9 +126,11 @@ SubBlock DynamicProgrammingCompression::findBestSubBlock(int x, int y, int z, co
     SubBlock bestSubBlock = subBlocks[0];
     int maxArea = bestSubBlock.left * bestSubBlock.up * bestSubBlock.inward;
 
-    for (int l = 1; l < (signed)subBlocks.size(); l++) {
+    for (int l = 1; l < (signed)subBlocks.size(); l++)
+    {
         int area = subBlocks[l].left * subBlocks[l].up * subBlocks[l].inward;
-        if (area > maxArea) {
+        if (area > maxArea)
+        {
             maxArea = area;
             bestSubBlock = subBlocks[l];
         }
@@ -124,143 +139,120 @@ SubBlock DynamicProgrammingCompression::findBestSubBlock(int x, int y, int z, co
     return bestSubBlock;
 }
 
+// Helper function to calculate the printing start and true length for each axis
+void calculateBoundedSubBlock(int &printing_start, int &true_length, int start, int end, int dp_length)
+{
+    printing_start = end - dp_length + 1;
+    true_length = dp_length;
 
-void DynamicProgrammingCompression::startSectioning(int x_start, int y_start, int z_start, int x_end, int y_end, int z_end, const std::vector<std::vector<std::vector<DPNode>>>& dp, std::string debug){
+    if (start + 1 > printing_start)
+    {
+        printing_start = start + 1;
+        true_length = end - start;
+    }
+}
+
+std::vector<PrintNode> DynamicProgrammingCompression::startSectioning(int x_start, int y_start, int z_start, int x_end, int y_end, int z_end, const std::vector<std::vector<std::vector<DPNode>>> &dp)
+{
 
     // Have a base case for the recursion
-    if (x_end <= x_start || y_end <= y_start || z_end <= z_start) {
-        // PrintOutput(x_start+1,y_start+1,z_start+1,x_end+1,y_end+1,z_end+1,debug+" returning");
-        return;
+    if (x_end <= x_start || y_end <= y_start || z_end <= z_start)
+    {
+        return {};
     }
-
-    // int local_z_start = z_start % myDimensions->z_parent;
-    // int local_y_start = x_start % myDimensions->x_parent;
-    // int local_x_start = y_start % myDimensions->y_parent;
 
     int local_z_end = z_end % myDimensions->z_parent;
     int local_y_end = y_end % myDimensions->y_parent;
     int local_x_end = x_end % myDimensions->x_parent;
 
-    // calculate bounded starting points for printing
-    int printing_x_start = x_end - dp[local_z_end][local_y_end][local_x_end].sub_block.left + 1;
-    int printing_y_start = y_end - dp[local_z_end][local_y_end][local_x_end].sub_block.up + 1;
-    int printing_z_start = z_end - dp[local_z_end][local_y_end][local_x_end].sub_block.inward + 1;
+    // Calculate bounded starting points and true lengths for printing
+    int bounded_x_start, bounded_y_start, bounded_z_start;
+    int bounded_x_length, bounded_y_length, bounded_z_length;
 
-    int true_x_length = dp[local_z_end][local_y_end][local_x_end].sub_block.left;
-    int true_y_length = dp[local_z_end][local_y_end][local_x_end].sub_block.up;
-    int true_z_length = dp[local_z_end][local_y_end][local_x_end].sub_block.inward;
+    SubBlock sub = dp[local_z_end][local_y_end][local_x_end].sub_block;
 
-    // PrintOutput(x_start+1,y_start+1,z_start+1,x_end+1,y_end+1,z_end+1,debug);
+    calculateBoundedSubBlock(bounded_x_start, bounded_x_length, x_start, x_end, sub.left);
+    calculateBoundedSubBlock(bounded_y_start, bounded_y_length, y_start, y_end, sub.up);
+    calculateBoundedSubBlock(bounded_z_start, bounded_z_length, z_start, z_end, sub.inward);
 
-    if (x_start + 1 > x_end - dp[local_z_end][local_y_end][local_x_end].sub_block.left + 1){
-        // std::cout<<"changed printing x start"<<std::endl;
-        printing_x_start = x_start + 1;
-        true_x_length = x_end - x_start;
+    std::vector<PrintNode> currSubBlock;
+    currSubBlock.push_back({bounded_x_start,
+                         bounded_y_start,
+                         bounded_z_start + current_level,
+                         bounded_x_length,
+                         bounded_y_length,
+                         bounded_z_length,
+                         getTag((*mySlices)[bounded_z_start][bounded_y_start][bounded_x_start])});
+
+    // all the possible ways to section the block
+    int sectioningConfig[6][3][6] = {
+        {{x_start, y_start, z_start, x_end, y_end, z_end - bounded_z_length},
+         {x_start, y_start, z_end - bounded_z_length, x_end - bounded_x_length, y_end, z_end},
+         {x_end - bounded_x_length, y_start, z_end - bounded_z_length, x_end, y_end - bounded_y_length, z_end}},
+        {{x_start, y_start, z_start, x_end, y_end, z_end - bounded_z_length},
+         {x_start, y_start, z_end - bounded_z_length, x_end, y_end - bounded_y_length, z_end},
+         {x_start, y_end - bounded_y_length, z_end - bounded_z_length, x_end - bounded_x_length, y_end, z_end}},
+        {{x_start, y_start, z_start, x_end - bounded_x_length, y_end, z_end},
+         {x_end - bounded_x_length, y_start, z_start, x_end, y_end, z_end - bounded_z_length},
+         {x_end - bounded_x_length, y_start, z_end - bounded_z_length, x_end, y_end - bounded_y_length, z_end}},
+        {{x_start, y_start, z_start, x_end - bounded_x_length, y_end, z_end},
+         {x_end - bounded_x_length, y_start, z_start, x_end, y_end - bounded_y_length, z_end},
+         {x_end - bounded_x_length, y_end - bounded_y_length, z_start, x_end, y_end, z_end - bounded_z_length}},
+        {{x_start, y_start, z_start, x_end, y_end - bounded_y_length, z_end},
+         {x_start, y_end - bounded_y_length, z_start, x_end - bounded_x_length, y_end, z_end},
+         {x_end - bounded_x_length, y_end - bounded_y_length, z_start, x_end, y_end, z_end - bounded_z_length}},
+        {{x_start, y_start, z_start, x_end, y_end - bounded_y_length, z_end},
+         {x_start, y_end - bounded_y_length, z_start, x_end, y_end, z_end - bounded_z_length},
+         {x_start, y_end - bounded_y_length, z_end - bounded_z_length, x_end - bounded_x_length, y_end, z_end}}};
+
+    size_t minSize = SIZE_MAX;
+    std::vector<PrintNode> leastSubBlockPath;
+
+    for (int i = 0; i < 6; i++)
+    {
+        std::vector<PrintNode> temp;
+        for (int j = 0; j < 3; j++)
+        {
+            temp += startSectioning(sectioningConfig[i][j][0],
+                                    sectioningConfig[i][j][1],
+                                    sectioningConfig[i][j][2],
+                                    sectioningConfig[i][j][3],
+                                    sectioningConfig[i][j][4],
+                                    sectioningConfig[i][j][5],
+                                    dp);
+        }
+        if (temp.size() < minSize)
+        {
+            minSize = temp.size();
+            leastSubBlockPath = temp;
+        }
     }
-    if (y_start + 1 > y_end - dp[local_z_end][local_y_end][local_x_end].sub_block.up + 1){
-        // std::cout<<"changed printing y start"<<std::endl;
-        printing_y_start = y_start + 1;
-        true_y_length = y_end - y_start;
-    }
-    if (z_start + 1 > z_end - dp[local_z_end][local_y_end][local_x_end].sub_block.inward + 1){
-        // std::cout<<"changed printing z start"<<std::endl;
-        printing_z_start = z_start + 1;
-        true_z_length = z_end - z_start;
-    }
-
-    total_area += (true_x_length * true_y_length * true_z_length);
-    
-    PrintOutput(printing_x_start,
-                printing_y_start,
-                printing_z_start+current_level,
-                true_x_length,
-                true_y_length,
-                true_z_length,
-                getTag((*mySlices)[printing_z_start][printing_y_start][printing_x_start]));
-
-    // PrintOutput(current_level,local_y_end,local_x_end,z_end,z_start,dp[local_z_end][local_y_end][local_x_end].sub_block.inward,"aaaaaaaaaaaaaaaaaaaa");
-    // Print the (probably semi-optimal) subblock
-    // PrintOutput(x_end - dp[local_z_end][local_y_end][local_x_end].sub_block.left + 1,
-    //             y_end - dp[local_z_end][local_y_end][local_x_end].sub_block.up + 1,
-    //             current_level + z_end - dp[local_z_end][local_y_end][local_x_end].sub_block.inward + 1,
-    //             dp[local_z_end][local_y_end][local_x_end].sub_block.left,
-    //             dp[local_z_end][local_y_end][local_x_end].sub_block.up,
-    //             dp[local_z_end][local_y_end][local_x_end].sub_block.inward,
-    //             getTag((*mySlices)[z_end][y_end][x_end]));
-
-    // Need at least 3 recursive calls
-    // Decisions, decisions, decisions...
-    
-    // (cube) > (plane) > (pilar)
-    //
-    // breaking test case
-    //
-    // ww
-    // wo
-    //
-    
-    // z > x > y 
-    startSectioning(x_start,
-                    y_start,
-                    z_start,
-                    x_end, 
-                    y_end, 
-                    z_end - true_z_length, 
-                    dp,
-                    debug+"↓");
-    // PrintOutput(local_z_end,local_y_end,local_x_end,dp[local_z_end][local_y_end][local_x_end].sub_block.inward,
-    // dp[local_z_end][local_y_end][local_x_end].sub_block.up,dp[local_z_end][local_y_end][local_x_end].sub_block.left,"aa");
-    startSectioning(x_start,
-                    y_start, 
-                    z_end - true_z_length, 
-                    x_end - true_x_length,
-                    y_end, 
-                    z_end, 
-                    dp,
-                    debug+"←");
-    // PrintOutput(local_z_end,local_y_end,local_x_end,dp[local_z_end][local_y_end][local_x_end].sub_block.inward,
-    // dp[local_z_end][local_y_end][local_x_end].sub_block.up,dp[local_z_end][local_y_end][local_x_end].sub_block.left,"bb");
-    startSectioning(x_end - true_x_length, 
-                    y_start, 
-                    z_end - true_z_length,
-                    x_end, 
-                    y_end - true_y_length, 
-                    z_end, 
-                    dp,
-                    debug+"↑");
-    
-
-    // z > x > y
-
-    // y > z > x
-
-    // y > x > z
-
-    // x > z > y
-
-    // x > y > z
-
-    
+    return currSubBlock += leastSubBlockPath;
 }
 
-void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int z_start) {
+void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int z_start)
+{
 
     // Specifying the end indexes of this parent block
     int x_end = x_start + myDimensions->x_parent;
     int y_end = y_start + myDimensions->y_parent;
     int z_end = z_start + myDimensions->z_parent;
 
-    // chunky boi
-    std::vector<std::vector<std::vector<DPNode>>> dp(myDimensions->z_parent, std::vector<std::vector<DPNode>>(myDimensions->y_parent, std::vector<DPNode>(myDimensions->x_parent)));
-
+    // Initialize the dp table
+    std::vector<std::vector<std::vector<DPNode>>> dp(myDimensions->z_parent, 
+                    std::vector<std::vector<DPNode>>(myDimensions->y_parent, 
+                                 std::vector<DPNode>(myDimensions->x_parent)));
 
     int local_x = 0;
     int local_y = 0;
     int local_z = 0;
     total_area = 0;
-    for (int z = z_start; z < z_end; z++){
-        for (int y = y_start; y < y_end; y++){
-            for (int x = x_start; x < x_end; x++){
+    for (int z = z_start; z < z_end; z++)
+    {
+        for (int y = y_start; y < y_end; y++)
+        {
+            for (int x = x_start; x < x_end; x++)
+            {
                 dp[local_z][local_y][local_x].neighbours = getNeighbouringSameKeyStreaks(x, y, z, dp);
                 dp[local_z][local_y][local_x].sub_block = findBestSubBlock(x, y, z, dp);
                 local_x = (local_x + 1) % myDimensions->x_parent;
@@ -269,15 +261,21 @@ void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int 
         }
         local_z = (local_z + 1) % myDimensions->z_parent;
     }
-    // PrintOutput(x_start,y_start,z_start,x_end,y_end,z_end,"--------------");
-    // if (x_start == 52 && y_start == 20 && z_start == 0){
-    //     std::cout<<dp[2][2][2].sub_block.left<<std::endl;
-    //     std::cout<<dp[2][2][2].sub_block.up<<std::endl;
-    //     std::cout<<dp[2][2][2].sub_block.inward<<std::endl;
-    // }
-    // else
-    startSectioning(x_start-1, y_start-1, z_start-1, x_end - 1, y_end - 1, z_end - 1, dp,".");
-    // if (x_start == 52 && y_start == 20 && z_start == 0){
+
+    std::vector<PrintNode> prints = startSectioning(x_start - 1, y_start - 1, z_start - 1, x_end - 1, y_end - 1, z_end - 1, dp);
+
+    for (unsigned int i = 0; i < prints.size(); i++)
+    {
+        PrintOutput(prints[i].x_position,
+                    prints[i].y_position,
+                    prints[i].z_position,
+                    prints[i].x_size,
+                    prints[i].y_size,
+                    prints[i].z_size,
+                    prints[i].label);
+    }
+
+    // if (total_area != myDimensions->z_parent * myDimensions->y_parent * myDimensions->x_parent){
     //     for (int z = z_start; z < z_end; z++){
     //         for (int y = y_start; y < y_end; y++){
     //             for (int x = x_start; x < x_end; x++){
@@ -288,32 +286,39 @@ void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int 
     //         std::cout<<std::endl;
     //     }
     //     raise(SIGTERM);
-    // } 
+    // }
 }
 
-// function that print the dp table
-void DynamicProgrammingCompression::PrintDPTableSubBlocks(std::vector<std::vector<std::vector<DPNode>>>& dp){
-    for (unsigned int z = 0; z < dp.size(); z++){
-        for (unsigned int y = 0; y < dp[0].size(); y++){
-            for (unsigned int x = 0; x < dp[0][0].size(); x++){
-                std::cout<<"<"<<dp[z][y][x].sub_block.left<<" "<<dp[z][y][x].sub_block.up<<" "<<dp[z][y][x].sub_block.inward<<">"<< " ";
+void DynamicProgrammingCompression::PrintDPTableSubBlocks(std::vector<std::vector<std::vector<DPNode>>> &dp)
+{
+    for (unsigned int z = 0; z < dp.size(); z++)
+    {
+        for (unsigned int y = 0; y < dp[0].size(); y++)
+        {
+            for (unsigned int x = 0; x < dp[0][0].size(); x++)
+            {
+                std::cout << "<" << dp[z][y][x].sub_block.left << " " << dp[z][y][x].sub_block.up << " " << dp[z][y][x].sub_block.inward << ">"
+                          << " ";
             }
-            std::cout<<std::endl;
+            std::cout << std::endl;
         }
-        std::cout<<std::endl;
+        std::cout << std::endl;
     }
 }
 
-// funciton to print the dp table neighbours
-void DynamicProgrammingCompression::PrintDPTableNeighbours(std::vector<std::vector<std::vector<DPNode>>>& dp){
-    for (unsigned int z = 0; z < dp.size(); z++){
-        for (unsigned int y = 0; y < dp[0].size(); y++){
-            for (unsigned int x = 0; x < dp[0][0].size(); x++){
-                std::cout<<"<"<<dp[z][y][x].neighbours.left<<" "<<dp[z][y][x].neighbours.up<<" "<<dp[z][y][x].neighbours.inward<<">"<< " ";
+void DynamicProgrammingCompression::PrintDPTableNeighbours(std::vector<std::vector<std::vector<DPNode>>> &dp)
+{
+    for (unsigned int z = 0; z < dp.size(); z++)
+    {
+        for (unsigned int y = 0; y < dp[0].size(); y++)
+        {
+            for (unsigned int x = 0; x < dp[0][0].size(); x++)
+            {
+                std::cout << "<" << dp[z][y][x].neighbours.left << " " << dp[z][y][x].neighbours.up << " " << dp[z][y][x].neighbours.inward << ">"
+                          << " ";
             }
-            std::cout<<std::endl;
+            std::cout << std::endl;
         }
-        std::cout<<std::endl;
+        std::cout << std::endl;
     }
 }
-

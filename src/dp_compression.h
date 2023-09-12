@@ -8,7 +8,21 @@
 
 #pragma once
 #include "compression.h"
+#include <vector>
+#include <csignal>
+#include <iostream>
 
+
+/**
+ * @struct PrintNode
+ * @brief Struct to store the print sub-block.
+ *
+ * This struct stores the print information for a given sub-block.
+ */
+struct PrintNode {
+    int x_position, y_position, z_position, x_size, y_size, z_size;
+    std::string label;
+};
 
 /**
  * @struct NeighboringSameKeyStreaks
@@ -123,5 +137,5 @@ public:
      * @param z_end The ending z coordinate of the block.
      * @param dp The dynamic programming table.
      */
-    void startSectioning(int z_start, int x_start, int y_start, int x_end, int y_end, int z_end, const std::vector<std::vector<std::vector<DPNode>>>& dp, std::string label);
+    std::vector<PrintNode> startSectioning(int z_start, int x_start, int y_start, int x_end, int y_end, int z_end, const std::vector<std::vector<std::vector<DPNode>>>& dp);
 };
