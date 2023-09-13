@@ -175,14 +175,21 @@ std::vector<PrintNode> DynamicProgrammingCompression::startSectioning(int x_star
     calculateBoundedSubBlock(bounded_y_start, bounded_y_length, y_start, y_end, sub.up);
     calculateBoundedSubBlock(bounded_z_start, bounded_z_length, z_start, z_end, sub.inward);
 
+    int local_bounded_x_start = bounded_x_start % myDimensions->x_parent;
+    int local_bounded_y_start = bounded_y_start % myDimensions->y_parent;
+    int local_bounded_z_start = bounded_z_start % myDimensions->z_parent;
+
+    // prtin bounded_x_start, bounded_y_start, bounded_z_start
+    // std::cout<<bounded_x_start<<" "<<bounded_y_start<<" "<<bounded_z_start<<std::endl;
+
+
     std::vector<PrintNode> currSubBlock;
-    currSubBlock.push_back({bounded_x_start,
-                         bounded_y_start,
-                         bounded_z_start + current_level,
+    currSubBlock.push_back({local_bounded_x_start,
+                         local_bounded_y_start,
+                         local_bounded_z_start,
                          bounded_x_length,
                          bounded_y_length,
-                         bounded_z_length,
-                         getTag((*mySlices)[bounded_z_start][bounded_y_start][bounded_x_start])});
+                         bounded_z_length});
 
     // all the possible ways to section the block
     int sectioningConfig[6][3][6] = {
@@ -230,6 +237,55 @@ std::vector<PrintNode> DynamicProgrammingCompression::startSectioning(int x_star
     return currSubBlock += leastSubBlockPath;
 }
 
+// Function to hash a DPNode
+std::size_t hashDPNode(const DPNode& node) {
+    std::size_t seed = 17;  // A prime number
+    seed = seed * 31 + std::hash<int>()(node.neighbours.left);  // 31 is also a prime number
+    seed = seed * 31 + std::hash<int>()(node.neighbours.up);
+    seed = seed * 31 + std::hash<int>()(node.neighbours.inward);
+    seed = seed * 31 + std::hash<int>()(node.sub_block.left);
+    seed = seed * 31 + std::hash<int>()(node.sub_block.up);
+    seed = seed * 31 + std::hash<int>()(node.sub_block.inward);
+    return seed;
+}
+
+// Function to hash a DP table
+std::size_t hashDPTable(const std::vector<std::vector<std::vector<DPNode>>>& dp) {
+    std::size_t seed = 17;
+        for (const auto& plane : dp) {
+            for (const auto& row : plane) {
+                for (const auto& cell : row) {
+                    std::size_t node_hash = hashDPNode(cell);
+                    seed = seed * 31 + node_hash;
+                }
+            }
+        }
+    return seed;
+}
+
+// Function to insert DP table hash into the map
+void DynamicProgrammingCompression::insertDPTable(std::size_t hash_val, std::vector<PrintNode> prints) {
+    std::lock_guard<std::mutex> lock(map_mutex); // Lock the mutex
+    map[hash_val] = prints;
+}
+
+void DynamicProgrammingCompression::printPrintNodes(int x_start, int y_start, int z_start, std::vector<PrintNode> prints) {
+    for (unsigned int i = 0; i < prints.size(); i++)
+    {
+        int x_print = x_start + prints[i].x_position;
+        int y_print = y_start + prints[i].y_position;
+        int z_print = z_start + prints[i].z_position;
+        std::string label = getTag((*mySlices)[z_print][y_print][x_print]);
+        PrintOutput(x_print,
+                    y_print,
+                    z_print + current_level,
+                    prints[i].x_size,
+                    prints[i].y_size,
+                    prints[i].z_size,
+                    label);
+    }
+}
+
 void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int z_start)
 {
 
@@ -262,17 +318,18 @@ void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int 
         local_z = (local_z + 1) % myDimensions->z_parent;
     }
 
-    std::vector<PrintNode> prints = startSectioning(x_start - 1, y_start - 1, z_start - 1, x_end - 1, y_end - 1, z_end - 1, dp);
+    // Hash the dp table
+    std::size_t hash_val = hashDPTable(dp);
+    auto it = map.find(hash_val);
 
-    for (unsigned int i = 0; i < prints.size(); i++)
-    {
-        PrintOutput(prints[i].x_position,
-                    prints[i].y_position,
-                    prints[i].z_position,
-                    prints[i].x_size,
-                    prints[i].y_size,
-                    prints[i].z_size,
-                    prints[i].label);
+    if (it != map.end()) {
+        std::vector<PrintNode> prints = it->second;
+        printPrintNodes(x_start, y_start, z_start, prints);
+    }
+    else{
+        std::vector<PrintNode> prints = startSectioning(x_start - 1, y_start - 1, z_start - 1, x_end - 1, y_end - 1, z_end - 1, dp);
+        insertDPTable(hash_val, prints);
+        printPrintNodes(x_start, y_start, z_start, prints);
     }
 
     // if (total_area != myDimensions->z_parent * myDimensions->y_parent * myDimensions->x_parent){

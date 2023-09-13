@@ -21,7 +21,6 @@
  */
 struct PrintNode {
     int x_position, y_position, z_position, x_size, y_size, z_size;
-    std::string label;
 };
 
 /**
@@ -66,6 +65,8 @@ struct DPNode {
 class DynamicProgrammingCompression : public Compression
 {
 private:
+    std::mutex map_mutex; // Mutex for thread-safe access to the map
+    std::unordered_map<std::size_t, std::vector<PrintNode>> map; // Hashmap to store the calculated dp tables
 
 public:
     /**
@@ -125,6 +126,24 @@ public:
      * @param dp The dynamic programming table.
      */
     void PrintDPTableNeighbours(std::vector<std::vector<std::vector<DPNode>>>& dp);
+
+    /**
+     * @brief Prints the subblocks created inside the dynamic programming table.
+     *
+     * @param prints The prints to be printed.
+     * @param hash_val The hash value of the prints.
+     */ 
+    void insertDPTable(std::size_t hash_val, std::vector<PrintNode> prints) ;
+
+    /**
+     * @brief Prints the subblocks created inside the dynamic programming table.
+     *
+     * @param x_start The starting x coordinate of the block.
+     * @param y_start The starting y coordinate of the block.
+     * @param z_start The starting z coordinate of the block.
+     * @param prints The prints to be printed.
+     */
+    void printPrintNodes(int x_start, int y_start, int z_start, std::vector<PrintNode> prints);
     
     /**
      * @brief Backtracks the dynamic programming table to print the (optimal? Don't know yet) subblocks.
