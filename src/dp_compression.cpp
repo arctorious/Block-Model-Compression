@@ -215,7 +215,8 @@ std::vector<PrintNode> DynamicProgrammingCompression::startSectioning(int x_star
     size_t minSize = SIZE_MAX;
     std::vector<PrintNode> leastSubBlockPath;
 
-    for (int i = 0; i < 6; i++)
+              // change ↓ to 6 to test all the sectioningConfig
+    for (int i = 0; i < 1; i++)
     {
         std::vector<PrintNode> temp;
         for (int j = 0; j < 3; j++)
