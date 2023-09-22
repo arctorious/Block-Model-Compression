@@ -47,6 +47,7 @@ public:
     ~LzCompression();
 
 private:
+    // All possible compressions for 2 by 2 by 2 parent blocks. 
     std::vector<std::vector<OutputNode>> myCompressions = 
     {
         {  },
@@ -306,5 +307,14 @@ private:
         { { 0,0,0,2,2,1} , { 0,0,1,2,1,1} , { 0,1,1,1,1,1}  },
         { { 0,0,0,2,2,2}  }
     };
+    
+        /**
+     * @brief Prints the output of a configuration of a 2 by 2 by 2 parent block.
+     * @param Tag The character of the parent block that is being compressed.
+     * @param Mask A binary number or bitmask that has ones for all locations that this tag is present for in the parent block.
+     * @param x_start The x coordianate of the corner of the parent block.
+     * @param y_start The y coordianate of the corner of the parent block.
+     * @param z_start The z coordianate of the corner of the parent block.
+     */
     void Convert(char Tag, int Mask,int x_start, int y_start, int z_start);
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+// A struct for storing sub blocks as a start coordinate and lengths of the subblock. 
 struct OutputNode
 {
     int xStart;

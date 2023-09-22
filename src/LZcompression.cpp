@@ -11,9 +11,11 @@ LzCompression::LzCompression(
 void LzCompression::Convert(char Tag, int Permutation, int x_start, int y_start, int z_start)
 {
     std::string out;
-    for(const auto& output : myCompressions[Permutation])
+    for(const OutputNode& output : myCompressions[Permutation])
     {
         PrintOutput(output.xStart+x_start, output.yStart+y_start, output.zStart+z_start, output.xLen, output.yLen, output.zLen,(*myTagTable)[Tag]);
+
+        // :TODO: see if all outputs can be printed at once.
         // out+= std::to_string(output.xStart) + ","+std::to_string(output.yStart)+ ","+std::to_string(output.zStart)+ ","+
         // std::to_string(output.xLen)+ ","+std::to_string(output.yLen)+ ","+std::to_string(output.zLen)+ ","+(*myTagTable)[Tag] + '\n';
         // std::lock_guard<std::mutex> lock(coutMutex);
