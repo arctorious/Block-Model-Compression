@@ -303,7 +303,7 @@ void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int 
     int local_x = 0;
     int local_y = 0;
     int local_z = 0;
-    total_area = 0;
+    
     for (int z = z_start; z < z_end; z++)
     {
         for (int y = y_start; y < y_end; y++)
