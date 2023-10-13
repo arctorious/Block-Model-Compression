@@ -43,13 +43,13 @@ run-octree-comb:
 	make run INPUT=build/the_combinatorial_one_42000000_14x10x12.csv ALGORITHM=-o TIMER_FLAG=-t
 
 # RUN DECOMP 3D
-run-octree-intro:
+run-decomp3D-intro:
 	make run INPUT=build/the_intro_one_32768_4x4x4.csv ALGORITHM=-d TIMER_FLAG=-t
 
-run-octree-fast:
+run-decomp3D-fast:
 	make run INPUT=build/the_fast_one_376000_2x2x2.csv ALGORITHM=-d TIMER_FLAG=-t
 
-run-octree-comb:
+run-decomp3D-comb:
 	make run INPUT=build/the_combinatorial_one_42000000_14x10x12.csv ALGORITHM=-d TIMER_FLAG=-t
 
 # TITAN BUILDS
