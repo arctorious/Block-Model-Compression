@@ -16,6 +16,7 @@
 #include "runlength_encoding.h"
 #include "simple_compression.h"
 #include "octree_compression.h"
+#include "Decomp3D.h"
 #include "dimensions.hpp"
 
 /**
