@@ -58,6 +58,7 @@ void Compression::WorkerFunction(int thread_id) {
         if(volume_tracker[thread_id] != myDimensions->x_parent * myDimensions->y_parent * myDimensions->z_parent){
             std::cout << "Error: Cumulative volume of compressed parent block outputs is incorrect for thread: "<<thread_id<<"\n";
             std::cout << "64 vs "<< volume_tracker[thread_id] << "\n";
+            exit(1);
         }
         else{
             volume_tracker[thread_id] = 0;
