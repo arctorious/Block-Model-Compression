@@ -50,7 +50,7 @@ public:
      *
      * threads will be looping here.
      */
-    void WorkerFunction();
+    void WorkerFunction(int thread_id);
 
     /**
      * @brief Pure virtual function for handling block compression.
@@ -59,7 +59,7 @@ public:
      * @param y_start Starting y coordinate of the block.
      * @param z_start Starting z coordinate of the block.
      */
-    virtual void CompressBlock(int x_start, int y_start, int z_start) = 0;
+    virtual void CompressBlock(int x_start, int y_start, int z_start, int thread_id) = 0;
 
     /** 
      * @brief fetches the tag for a given key
@@ -80,7 +80,7 @@ public:
      * @param z_size     Size of grouped cells in z direction.
      * @param lable      Tag lable from the tag table
      */
-    void PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label);
+    void PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label, int thread_id);
 
     /**
      * @brief Virtual destructor.
@@ -92,6 +92,8 @@ protected:
     std::unordered_map<char, std::string>* myTagTable; ///< Pointer to the tag table mapping.
     Dimensions* myDimensions; ///< Pointer to the dimensions object.
     int current_level; ////< Current level of proccessing with refrence o z_parent.
+    
+    std::vector<double> volume_tracker;
 
 private:
     int x_start; ///< Starting x coordinate.

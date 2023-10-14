@@ -46,6 +46,9 @@ run-octree-comb:
 titan-linux:
 	make COMPILER="x86_64-w64-mingw32-g++-posix -static" EXEC=BLOCK11.exe
 
+titan-macos:
+	make COMPILER="x86_64-w64-mingw32-g++ -static" EXEC=BLOCK11.exe
+
 titan-arch-linux:
 	make COMPILER="x86_64-w64-mingw32-g++ -static" EXEC=BLOCK11.exe
 	
