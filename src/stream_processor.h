@@ -17,6 +17,7 @@
 #include "simple_compression.h"
 #include "octree_compression.h"
 #include "dimensions.hpp"
+#include "dp_compression.h"
 
 /**
  * @class StreamProcessor
