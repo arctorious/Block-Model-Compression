@@ -6,24 +6,18 @@
 #include <unordered_map>
 #include <algorithm>
 #include <climits>
-
+#include <sstream> 
 #define xyPlane 0
 #define zyPlane 1
 #define zxPlane 2
 
-typedef std::vector<std::vector<std::vector<std::vector<bool>>>> bool_4d;
-
-#pragma once
 #include "Decomp3D.h"
-#include "DecompHeaders/Separator.h"
-#include "DecompHeaders/CEdge.h"
-#include "DecompHeaders/Block.h"
 
 
-Decomp3D::Decomp3D(std::vector<std::vector<std::vector<char>>>* mySlices,
-                                     std::unordered_map<char, std::string>* TagTable,
-                                     Dimensions* Dimensions)
-  : Compression(mySlices, TagTable, Dimensions)
+Decomp3D::Decomp3D(std::vector<std::vector<std::vector<char>>>* Slices,
+                   std::unordered_map<char, std::string>* TagTable,
+                   Dimensions* Dimensions)
+  : Compression(Slices, TagTable, Dimensions)
 {}
 
 
@@ -33,13 +27,49 @@ void Decomp3D::CompressBlock(int x_start, int y_start, int z_start) {
     int x_end = x_start + myDimensions->x_parent;
     int y_end = y_start + myDimensions->y_parent;
     int z_end = z_start + myDimensions->z_parent;
-    
+    int idx = 0;
     for(const auto& [blockType, tag] : (*myTagTable)){
-        std::vector<Block*> blocks = CompressBlockType(x_start, y_start, z_start, x_end, y_end,z_end, blockType);
+        std::cout.flush();
+        std::stringstream out;  
 
-        for(const Block* block : blocks){
-            PrintOutput(block->xStart, block->yStart, block->zStart + current_level, block->xDimension, block->yDimension, block->zDimension, tag);
+        out << "{";
+        for(int z = z_start; z < z_end; z++){
+            out << "{";
+            for(int y = y_start; y < y_end; y++){
+                out << "{";
+                for(int x = x_start; x < x_end; x++){
+                    if((*mySlices)[z][y][x] == blockType)
+                        out << "1";
+                    else
+                        out << "0";
+                    if(x < x_end-1)
+                        out << ",";
+                }
+
+                    
+                if(y < y_end-1)
+                    out << "},\n";
+                else
+                    out << "}";
+            }
+
+            if(z < z_end-1)
+                    out << "},\n";
+                else
+                    out<< "}\n";
         }
+        out << "},\n";
+        
+        std::cout << out.str() << std::endl;
+
+        // std::cout << "=====COMPRESSING BLOCK: " << blockType << "=====\n";
+        std::vector<Block*> blocks = CompressBlockType(x_start, y_start, z_start, x_end, y_end, z_end, blockType);
+        
+        // for(const Block* block : blocks){
+        //     PrintOutput(block->xStart, block->yStart, block->zStart + current_level, block->xDimension, block->yDimension, block->zDimension, tag);
+        // }
+
+        // std::cout << "=====COMPRESSION FINISHED=====\n";
     }
 
 }
@@ -48,19 +78,25 @@ void Decomp3D::CompressBlock(int x_start, int y_start, int z_start) {
 std::vector<Block*> Decomp3D::CompressBlockType(int x_start, int y_start, int z_start, int xLim, int yLim, int zLim, char blockType)
 {
     std::vector<Separator *> walls;
+
+    std::cout << "1. Finding separators" << "\r\n";
     std::vector<Separator *> separators = findAllSeparators(x_start, y_start, z_start, zLim, yLim, xLim, blockType);
+    std::cout << "2. Finding edges" << "\n";
     std::vector<CEdge *> edges = findAllConcaveEdges(x_start, y_start, z_start, zLim, yLim, xLim, blockType);
 
+    std::cout << "=====Entering while loop=====" << "\r\n";
     while (!separators.empty())
     {
-
+        std::cout << "3. Calculating Weight" << "\r\n";
         std::vector<int> weights = calWeight(separators);
+        std::cout << "3.1. removing unnecessary separators" << "\r\n";
         removeUnusedSeparators(weights, separators);
 
         if (separators.empty())
             break;
 
 
+        std::cout << "3.2 Finding maxWeighted Separators" << "\r\n";
         int maxWeight = 0;
         for (int i = 0; i < weights.size(); i++)
         {
@@ -77,39 +113,42 @@ std::vector<Block*> Decomp3D::CompressBlockType(int x_start, int y_start, int z_
             }
         }
 
+        std::cout << "4. Creating graph\r\n";
         std::vector<std::vector<int>> graph = createGraph(max_weighted_separators);
 
+        std::cout << "5. finding independent set" << "\r\n";
         std::vector<int> set = maxIS(graph);
 
-
-        std::vector<Separator *> finalWalls = setSeparator(max_weighted_separators, set);
+        std::cout << "5.1 Setting Walls" << "\r\n";
+        std::vector<Separator* > finalWalls = setSeparator(max_weighted_separators, set);
         max_weighted_separators.clear();
 
-        for (Separator *sep : finalWalls)
+        for (Separator* sep : finalWalls)
         {
             walls.push_back(sep);
         }
 
+        std::cout << "5.2 removing walls from the separators vector" << "\r\n";
         removeSeparatorList(separators, finalWalls);
-
+        std::cout << "5.3 removing edges erased by the walls" << "\r\n";
         removeEdges(edges, finalWalls);
 
-        std::vector<Separator *> newSep = splitSeparators(separators, finalWalls);
+        std::cout << "6. Splitting separators by walls" << "\r\n";
+        std::vector<Separator* > newSep = splitSeparators(separators, finalWalls);
 
-        std::vector<CEdge *> newEdge = splitEdges(edges, finalWalls);
+        std::cout << "7. Splitting edges by walls" << "\r\n";
+        std::vector<CEdge* > newEdge = splitEdges(edges, finalWalls);
     }
     // combining
-
-
-    concaveEdgeMap.clear();
+    std::cout << "=====FINISHED WHILE LOOP=====" << "\r\n";
 
     // creating the map
     std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, bool>>>> wallMap;
 
-    for (Separator *sep : walls)
+    for (Separator* sep : walls)
     {
         int orientation = sep->orientation;
-        for (std::vector<int> indice : sep->indices)
+        for (std::vector<int>& indice : sep->indices)
         {
             int z = indice[0];
             int y = indice[1];
@@ -119,18 +158,19 @@ std::vector<Block*> Decomp3D::CompressBlockType(int x_start, int y_start, int z_
         }
     }
 
-    clearVariables(edges, walls);
-
-    std::vector<Block *> blocks = formingBlocks(x_start, y_start, z_start, zLim, yLim, xLim, blockType, wallMap);
-
+    std::cout << "8. Clearing variables" << "\r\n";
+    
+    std::cout << "9. forming blocks" << "\r\n";
+    std::vector<Block *> blocks = formingBlocks(z_start, y_start, x_start, zLim, yLim, xLim, blockType, wallMap);
+    std::cout << "9.1 merging blocks" << "\r\n";
     mergeAdjacentBlock(blocks);
 
+    std::cout << "=====algorithm finished=====" << "\r\n";
     return blocks;
 }
 
 
 
-// horizontal
 Separator *Decomp3D::findSingleSeparator_xy(int x, int y, int z, int xLim, int yLim, char blockType, bool_4d &visited)
 {
     visited[z][y][x][xyPlane] = true;
@@ -362,7 +402,6 @@ std::vector<Separator *> Decomp3D::findAllSeparators(int xStart, int yStart, int
 
     return separators;
 }
-
 
 CEdge *Decomp3D::findSingleConcaveEdge_xdirection(int &x, int y, int z, int xLim, char blockType)
 {
@@ -1058,7 +1097,7 @@ std::vector<int> Decomp3D::calWeight(std::vector<Separator *> &separators)
                     int index2 = exist_in_map(curZ, curY, curX, zyPlane);
                     if (index == index2)
                     {
-                       
+
                         countedEdges[index] = true;
                         perpendicularEdgeNumber++;
                     }
@@ -1070,7 +1109,7 @@ std::vector<int> Decomp3D::calWeight(std::vector<Separator *> &separators)
                     int index2 = exist_in_map(curZ, curY, curX + 1, zyPlane);
                     if (index == index2)
                     {
-                        
+
                         countedEdges[index] = true;
                         perpendicularEdgeNumber++;
                     }
@@ -1081,7 +1120,6 @@ std::vector<int> Decomp3D::calWeight(std::vector<Separator *> &separators)
                     int index2 = exist_in_map(curZ + 1, curY, curX, zyPlane);
                     if (index == index2)
                     {
-                        
                         countedEdges[index] = true;
                         perpendicularEdgeNumber++;
                     }
@@ -1092,7 +1130,6 @@ std::vector<int> Decomp3D::calWeight(std::vector<Separator *> &separators)
                     int index2 = exist_in_map(curZ + 1, curY, curX + 1, zyPlane);
                     if (index == index2)
                     {
-                  
                         countedEdges[index] = true;
                         perpendicularEdgeNumber++;
                     }
@@ -1104,7 +1141,6 @@ std::vector<int> Decomp3D::calWeight(std::vector<Separator *> &separators)
             weight.push_back(INT_MIN);
             continue;
         }
-       
         sep_idx++;
         weight.push_back(concaveEdgeNumber - perpendicularEdgeNumber);
     }
@@ -1139,7 +1175,6 @@ bool Decomp3D::ifIntersect(Separator *current, Separator *comparsion)
 {
     // needed to code for the three dimensions
     // xy
-
     std::unordered_map<int, int> intersection_coordinates;
     if (current->orientation == xyPlane && comparsion->orientation == zyPlane)
     {
@@ -1488,7 +1523,6 @@ void Decomp3D::erase_mapEdges(CEdge *edge)
     int z = edge->zStart;
     int y = edge->yStart;
     int x = edge->xStart;
-
     if (orientation == xyPlane)
     {
         for (int idx : edge->indices)
@@ -1576,7 +1610,7 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
                     delete edges[index];
                     edges[index] = nullptr;
                 }
-
+  
                 index = exist_in_map(curZ + 1, curY, curX, xyPlane);
                 if (index != -1)
                 {
@@ -1584,20 +1618,20 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
                     delete edges[index];
                     edges[index] = nullptr;
                 }
-
+   
                 index = exist_in_map(curZ + 1, curY, curX + 1, zyPlane);
                 if (index != -1)
                 {
- 
+    
                     erase_mapEdges(edges[index]);
                     delete edges[index];
                     edges[index] = nullptr;
                 }
-
+     
                 index = exist_in_map(curZ + 1, curY, curX, zyPlane);
                 if (index != -1)
                 {
-
+   
                     erase_mapEdges(edges[index]);
                     delete edges[index];
                     edges[index] = nullptr;
@@ -1625,7 +1659,6 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
                 int index = exist_in_map(curZ + 1, curY, curX + 1, zyPlane);
                 if (index != -1)
                 {
-
                     erase_mapEdges(edges[index]);
                     delete edges[index];
                     edges[index] = nullptr;
@@ -1633,7 +1666,7 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
                 index = exist_in_map(curZ, curY, curX + 1, zyPlane);
                 if (index != -1)
                 {
-
+     
                     erase_mapEdges(edges[index]);
                     delete edges[index];
                     edges[index] = nullptr;
@@ -1641,6 +1674,7 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
                 index = exist_in_map(curZ, curY + 1, curX + 1, zxPlane);
                 if (index != -1)
                 {
+             
                     erase_mapEdges(edges[index]);
                     delete edges[index];
                     edges[index] = nullptr;
@@ -1648,6 +1682,7 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
                 index = exist_in_map(curZ, curY, curX + 1, zxPlane);
                 if (index != -1)
                 {
+               
                     erase_mapEdges(edges[index]);
                     delete edges[index];
                     edges[index] = nullptr;
@@ -1667,6 +1702,7 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
                 int curZ = indicie[0];
                 int curY = indicie[1];
                 int curX = indicie[2];
+
                 // loop through edges in the 2 directions of the plane
                 // x direction
                 int index = exist_in_map(curZ + 1, curY + 1, curX, xyPlane);
@@ -1723,9 +1759,10 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
     while (deleteCount--)
         edges.pop_back();
 
+
 }
 
-std::vector<Separator *> Decomp3D::setSeparator(std::vector<Separator *> &separators, std::vector<int> indices)
+std::vector<Separator *> Decomp3D::setSeparator(std::vector<Separator *> &separators, std::vector<int>& indices)
 {
     std::vector<Separator *> ret;
     for (int idx : indices)
@@ -1736,10 +1773,8 @@ std::vector<Separator *> Decomp3D::setSeparator(std::vector<Separator *> &separa
     return ret;
 }
 
-
-void Decomp3D::removeSeparatorList(std::vector<Separator *> &separators, std::vector<Separator *> &finalSeparator)
+void Decomp3D::removeSeparatorList(std::vector<Separator *> &separators, std::vector<Separator*> & finalSeparator)
 {
-
     for (const Separator *final : finalSeparator)
     {
         for (int i = 0; i < separators.size(); i++)
@@ -1770,6 +1805,7 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
 {
     // needed to code for the three dimensions
     // xy
+
     std::unordered_map<int, std::pair<int, int>> intersection_coordinates;
     if (current->orientation == xyPlane && comparsion->orientation == zyPlane)
     {
@@ -1864,6 +1900,7 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
     // zy
     else if (current->orientation == zyPlane && comparsion->orientation == xyPlane)
     {
+
         int comp_z = comparsion->indices[0][0];
         int comp_x = current->indices[0][2];
 
@@ -1904,6 +1941,7 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
 
         for (auto [y, weight] : intersection_coordinates)
         {
+
             if (weight.first == 2 && weight.second == -2)
             {
 
@@ -2057,13 +2095,14 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
     int separatorSize = separators.size();
     std::vector<Separator *> newSep;
 
+
     for (int i = 0; i < separatorSize; i++)
     {
         std::vector<int> xAxis;
         std::vector<int> yAxis;
         std::vector<int> zAxis;
         std::vector<std::vector<Separator *>> newSeparators;
-        
+
         for (int j = 0; j < finalSeparator.size(); j++)
         {
 
@@ -2071,7 +2110,7 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
             {
                 if (ifIntersect_splitting(separators[i], finalSeparator[j]) == false)
                     continue;
-              
+
                 // split the separator by the axis of the separators
                 if (finalSeparator[j]->orientation == xyPlane)
                 {
@@ -2088,14 +2127,15 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
             }
         }
 
-
         // we should only split if there is at least one intersection.
         if (zAxis.empty() && yAxis.empty() && xAxis.empty())
             continue;
 
+
         // split the separators with the axis.
         if (separators[i]->orientation == xyPlane)
         {
+
             // bfs through the indicies, handle the axis as walls
             newSeparators.resize(xAxis.size() + 1, std::vector<Separator *>(yAxis.size() + 1, nullptr));
 
@@ -2114,7 +2154,8 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
                 xBound = std::upper_bound(xAxis.begin(), xAxis.end(), curX) - xAxis.begin();
                 yBound = std::upper_bound(yAxis.begin(), yAxis.end(), curY) - yAxis.begin();
 
-                xBound = xBound * (yAxis.size() + 1);
+                if (newSeparators.at(xBound).at(yBound) == nullptr)
+                    newSeparators[xBound][yBound] = new Separator(xyPlane);
 
                 if (newSeparators[xBound][yBound] == nullptr)
                     newSeparators[xBound][yBound] = new Separator(xyPlane);
@@ -2125,6 +2166,7 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
 
         else if (separators[i]->orientation == zyPlane)
         {
+
             // bfs through the indicies, handle the axis as walls
             newSeparators.resize(zAxis.size() + 1, std::vector<Separator *>(yAxis.size() + 1, nullptr));
 
@@ -2143,8 +2185,6 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
                 zBound = upper_bound(zAxis.begin(), zAxis.end(), curZ) - zAxis.begin();
                 yBound = upper_bound(yAxis.begin(), yAxis.end(), curY) - yAxis.begin();
 
-                zBound = zBound * (yAxis.size() + 1);
-
                 if (newSeparators[zBound][yBound] == nullptr)
                     newSeparators[zBound][yBound] = new Separator(zyPlane);
 
@@ -2153,6 +2193,7 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
         }
         else if (separators[i]->orientation == zxPlane)
         {
+
             // bfs through the indicies, handle the axis as walls
             newSeparators.resize(xAxis.size() + 1, std::vector<Separator *>(zAxis.size() + 1, nullptr));
 
@@ -2171,8 +2212,6 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
                 xBound = std::upper_bound(xAxis.begin(), xAxis.end(), curX) - xAxis.begin();
                 zBound = std::upper_bound(zAxis.begin(), zAxis.end(), curZ) - zAxis.begin();
 
-                xBound = xBound * (zAxis.size() + 1);
-
                 if (newSeparators[xBound][zBound] == nullptr)
                     newSeparators[xBound][zBound] = new Separator(zxPlane);
 
@@ -2183,7 +2222,7 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
         delete separators[i];
         separators[i] = newSeparators[0][0];
         newSep.push_back(newSeparators[0][0]);
-        
+
         for (int m = 0; m < newSeparators.size(); m++)
         {
             for (int n = 0; n < newSeparators[m].size(); n++)
@@ -2335,6 +2374,7 @@ std::vector<CEdge *> Decomp3D::splitEdges(std::vector<CEdge *> &CEdges, std::vec
         }
 
         erase_mapEdges(CEdges[i]);
+
         delete CEdges[i];
         CEdges[i] = newEdges[0];
         insert_to_map(newEdges[0], i);
@@ -2353,6 +2393,7 @@ std::vector<CEdge *> Decomp3D::splitEdges(std::vector<CEdge *> &CEdges, std::vec
     return newEdge;
 }
 
+
 Block *Decomp3D::formSingleBlock(int zStart, int yStart, int xStart, int zLim, int yLim, int xLim, char blockType,
                        std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, bool>>>> &wallMap,
                        std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, bool>>> &hmap)
@@ -2362,18 +2403,18 @@ Block *Decomp3D::formSingleBlock(int zStart, int yStart, int xStart, int zLim, i
     int y = yStart;
     int x = xStart;
 
-        while (z < zLim - 1)
-        {
-            if ((*mySlices)[z + 1][yStart][xStart] != blockType)
-                break;
-            
-            if (wallMap.find(z) != wallMap.end() && wallMap[z].find(yStart) != wallMap[z].end() && wallMap[z][yStart].find(xStart) != wallMap[z][yStart].end() && wallMap[z][yStart][xStart].find(xyPlane) != wallMap[z][yStart][xStart].end())
-            {
-                break;
-            }    
+    while (z < zLim - 1)
+    {
+        if ((*mySlices)[z + 1][yStart][xStart] != blockType)
+            break;
 
-            z++;
+        if (wallMap.find(z) != wallMap.end() && wallMap[z].find(yStart) != wallMap[z].end() && wallMap[z][yStart].find(xStart) != wallMap[z][yStart].end() && wallMap[z][yStart][xStart].find(xyPlane) != wallMap[z][yStart][xStart].end())
+        {
+            break;
         }
+
+        z++;
+    }
 
     while (y < yLim - 1)
     {
@@ -2383,13 +2424,11 @@ Block *Decomp3D::formSingleBlock(int zStart, int yStart, int xStart, int zLim, i
         if (wallMap.find(zStart) != wallMap.end() && wallMap[zStart].find(y) != wallMap[zStart].end() && wallMap[zStart][y].find(xStart) != wallMap[zStart][y].end() && wallMap[zStart][y][xStart].find(zxPlane) != wallMap[zStart][y][xStart].end())
         {
             break;
-        }  
+        }
 
         y++;
     }
 
-
-    
     while (x < xLim - 1)
     {
         if ((*mySlices)[zStart][yStart][x + 1] != blockType)
@@ -2401,7 +2440,7 @@ Block *Decomp3D::formSingleBlock(int zStart, int yStart, int xStart, int zLim, i
 
         x++;
     }
-    
+
     for (int i = zStart; i <= z; i++)
     {
         for (int j = yStart; j <= y; j++)
@@ -2563,7 +2602,8 @@ void Decomp3D::mergeAdjacentBlock(std::vector<Block *> &blocks)
     }
 }
 
-void Decomp3D::clearVariables(std::vector<CEdge *> &concaveEdges, std::vector<Separator *> walls)
+
+void Decomp3D::clearVariables(std::vector<CEdge *> &concaveEdges, std::vector<Separator *> &walls)
 {
     for (Separator *sep : walls)
         delete sep;
@@ -2574,4 +2614,3 @@ void Decomp3D::clearVariables(std::vector<CEdge *> &concaveEdges, std::vector<Se
     walls.clear();
     concaveEdges.clear();
 }
-

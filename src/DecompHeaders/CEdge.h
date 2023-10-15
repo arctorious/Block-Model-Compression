@@ -1,5 +1,6 @@
 #ifndef CEDGE_H
 #define CEDGE_H
+
 #include <vector>
 /*
 Concave edges:
@@ -20,7 +21,7 @@ class CEdge
 {
 public:
     int orientation;
-    int xStart, yStart, zStart;
+    int xStart=-1, yStart=-1, zStart=-1;
     std::vector<int> indices;
     CEdge(int orientation)
     {
