@@ -7,7 +7,7 @@ SimpleCompression::SimpleCompression(std::vector<std::vector<std::vector<char>>>
     : Compression(Slices, TagTable, Dimensions)
 {}
 
-void SimpleCompression::CompressBlock(int x_start, int y_start, int z_start, int thread_id) {
+void SimpleCompression::CompressBlock(int x_start, int y_start, int z_start) {
 
     // Specifying the end indexes of this parent block
     int x_end = x_start + myDimensions->x_parent;
@@ -21,7 +21,7 @@ void SimpleCompression::CompressBlock(int x_start, int y_start, int z_start, int
         for (int y = y_start; y < y_end; y++){
             for (int x = x_start; x < x_end; x++){
                 char key = (*mySlices)[z][y][x];
-                PrintOutput(x, y, z + current_level, 1, 1, 1, getTag(key), thread_id);
+                PrintOutput(x, y, z + current_level, 1, 1, 1, getTag(key));
             }
         }
     }

@@ -28,8 +28,8 @@ void Compression::Compress(int z_start) {
     unsigned num_threads = std::thread::hardware_concurrency(); // Number of available hardware threads
     std::vector<std::thread> threads;
     for (unsigned i = 0; i < num_threads; ++i) {
-        threads.emplace_back(&Compression::WorkerFunction, this, i); // Use the new member function
-        volume_tracker.push_back(0);
+        threads.emplace_back(&Compression::WorkerFunction, this); // Use the new member function
+        // volume_tracker.push_back(0);
     }
 
     // Join the threads
@@ -38,7 +38,7 @@ void Compression::Compress(int z_start) {
     }
 }
 
-void Compression::WorkerFunction(int thread_id) {
+void Compression::WorkerFunction() {
     std::vector<int> chunk_pos;
     while (true) {
         {
@@ -47,7 +47,7 @@ void Compression::WorkerFunction(int thread_id) {
             chunk_pos = workQueue.front();
             workQueue.pop();
         }
-        CompressBlock(chunk_pos[0], chunk_pos[1], chunk_pos[2], thread_id);
+        CompressBlock(chunk_pos[0], chunk_pos[1], chunk_pos[2]);
 
        {
         
@@ -55,14 +55,15 @@ void Compression::WorkerFunction(int thread_id) {
 
         // Checking compressed parent block volume matches original parent block volume
 
-        double volume = myDimensions->x_parent * myDimensions->y_parent * myDimensions->z_parent;
-        if(volume_tracker[thread_id] != volume){
-            std::cout << "Error: Cumulative volume of compressed parent block output is incorrect for thread: "<<thread_id<<"\n";
-            std::cout << volume << " vs "<< volume_tracker[thread_id] << "\n";
+        int volume = myDimensions->x_parent * myDimensions->y_parent * myDimensions->z_parent;
+        
+        if(volume_tracker[std::this_thread::get_id()] != volume){
+            std::cout << "Error: Cumulative volume of compressed parent block output is incorrect for thread: "<<std::this_thread::get_id()<<"\n";
+            std::cout << volume << " vs "<< volume_tracker[std::this_thread::get_id()] << "\n";
             exit(1);
         }
         else{
-            volume_tracker[thread_id] = 0;
+            volume_tracker[std::this_thread::get_id()] = 0;
         }
 
        }
@@ -75,10 +76,10 @@ std::string Compression::getTag(char key){
     return (myTagTable->find(key))->second;
 }
 
-void Compression::PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label, int thread_id) {
+void Compression::PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label) {
     std::lock_guard<std::mutex> lock(coutMutex);
 
-    volume_tracker[thread_id] += x_size * y_size * z_size;
+    volume_tracker[std::this_thread::get_id()] += x_size * y_size * z_size;
 
     std::cout << x_position << "," << y_position << "," << z_position << "," << x_size << "," << y_size << "," << z_size << "," << label << '\n';
 
@@ -86,13 +87,9 @@ void Compression::PrintOutput(int x_position, int y_position, int z_position, in
     int start_z = z_position%myDimensions->z_parent;
     char tag = (*mySlices)[start_z][y_position][x_position];
     
-    // std::cout<<start_z<< " " << z_size <<"\n";
     for(int z = start_z; z<start_z+z_size; z++){
-        // std::cout<<z;
         for(int y = y_position; y<y_position+y_size; y++){
-            // std::cout<<" "<<y;
             for(int x = x_position; x<x_position+x_size; x++){
-                // std::cout<<"hello"<<z<<"\n";
                 if ( (*mySlices)[z][y][x] != tag) {
                     std::cout<<"ERROR: Two or more blocks with different tags are trying to be compressed\n";
                     exit(1);

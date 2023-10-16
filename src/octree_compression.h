@@ -64,7 +64,7 @@ public:
      * @param z_start Starting z coordinate of the block.
      * Overrides the virtual function from the Compression class.
      */
-    void CompressBlock(int x_start, int y_start, int z_start, int thread_id) override;
+    void CompressBlock(int x_start, int y_start, int z_start) override;
 
     using Compression::PrintOutput;
     
@@ -73,7 +73,7 @@ public:
      * @param node 
      * @param list 
      */
-    void PrintOutput(OctreeNode& node, std::vector<std::vector<int>> list, int thread_id);
+    void PrintOutput(OctreeNode& node, std::vector<std::vector<int>> list);
     
     /**
      * @brief Check if the given sub-blocks can be aggregated. If so, output the current block
@@ -84,7 +84,7 @@ public:
      * @return true if the given sub-blocks can be aggregated
      * @return false otherwise
      */
-    bool aggregate(OctreeNode& node, std::vector<int> cells, int thread_id, bool print = true);
+    bool aggregate(OctreeNode& node, std::vector<int> cells, bool print = true);
     
     /**
      * @brief Check if the subblocks of (n-1) dimensions can be aggregated. If so, output the current block
@@ -96,7 +96,7 @@ public:
      * @return true 
      * @return false 
      */
-    bool n_take_one_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, int thread_id, int side = -1);
+    bool n_take_one_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, int side = -1);
     
     /**
      * @brief Check if any of the edges can be aggregated. If so, output the current block
@@ -106,7 +106,7 @@ public:
      * @return true 
      * @return false 
      */
-    bool edge_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, int thread_id);
+    bool edge_aggregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q);
     
     /**
      * @brief Individually output / process the sub-blocks
@@ -118,5 +118,5 @@ public:
      * @return true 
      * @return false 
      */
-    bool segregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, std::vector<int> cells, int thread_id);
+    bool segregate(OctreeNode& node, std::queue<std::tuple<int, int, int, int, int, int>>& q, std::vector<int> cells);
 };

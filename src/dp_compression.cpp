@@ -287,7 +287,7 @@ void DynamicProgrammingCompression::printPrintNodes(int x_start, int y_start, in
     }
 }
 
-void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int z_start, int thread_id)
+void DynamicProgrammingCompression::CompressBlock(int x_start, int y_start, int z_start)
 {
 
     // Specifying the end indexes of this parent block

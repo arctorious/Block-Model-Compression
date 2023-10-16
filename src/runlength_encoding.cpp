@@ -8,7 +8,7 @@ RunLengthEncoding::RunLengthEncoding(std::vector<std::vector<std::vector<char>>>
 {}
 
 
-void RunLengthEncoding::CompressBlock(int x_start, int y_start, int z_start, int thread_id) {
+void RunLengthEncoding::CompressBlock(int x_start, int y_start, int z_start) {
 
     // Specifying the end indexes of this parent block
     int x_end = x_start + myDimensions->x_parent;
@@ -33,14 +33,14 @@ void RunLengthEncoding::CompressBlock(int x_start, int y_start, int z_start, int
                 if(saved_key == current_key)
                     key_count++;
                 else{
-                    PrintOutput(starting_x, y, z + current_level, key_count, 1, 1, getTag(saved_key), thread_id);
+                    PrintOutput(starting_x, y, z + current_level, key_count, 1, 1, getTag(saved_key));
     
                     saved_key = current_key;
                     starting_x = x;
                     key_count = 1;                    
                 }
             }
-            PrintOutput(starting_x, y, z + current_level, key_count, 1, 1, getTag(saved_key), thread_id);
+            PrintOutput(starting_x, y, z + current_level, key_count, 1, 1, getTag(saved_key));
         }
     }
 

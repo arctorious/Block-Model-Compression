@@ -11,6 +11,7 @@
 #include <vector>
 #include <csignal>
 #include <iostream>
+#include <array>
 
 
 /**
@@ -89,7 +90,7 @@ public:
      * @param z_start Starting z coordinate of the block.
      * Overrides the virtual function from the Compression class.
      */
-    void CompressBlock(int x_start, int y_start, int z_start, int thread_id) override;
+    void CompressBlock(int x_start, int y_start, int z_start) override;
 
     /**
      * @brief Finds the neighboring same key streaks for a given node.
