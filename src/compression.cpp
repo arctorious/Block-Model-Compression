@@ -24,25 +24,28 @@ void Compression::Compress(int z_start) {
         y_start += myDimensions->y_parent;
     }
 
-    // Create and launch threads
-    unsigned num_threads = std::thread::hardware_concurrency(); // Number of available hardware threads
-    std::vector<std::thread> threads;
-    for (unsigned i = 0; i < num_threads; ++i) {
-        threads.emplace_back(&Compression::WorkerFunction, this); // Use the new member function
-    }
+    // // Create and launch threads
+    // unsigned num_threads = std::thread::hardware_concurrency(); // Number of available hardware threads
+    // std::vector<std::thread> threads;
+    // for (unsigned i = 0; i < num_threads; ++i) {
+    //     threads.emplace_back(&Compression::WorkerFunction, this); // Use the new member function
+    // }
 
-    // Join the threads
-    for (auto& t : threads) {
-        t.join();
-    }
+    // // Join the threads
+    // for (auto& t : threads) {
+    //     t.join();
+    // }
+
+    WorkerFunction();
+
 }
 
 void Compression::WorkerFunction() {
     std::vector<int> chunk_pos;
-    while (true) {
+    while (!workQueue.empty()) {
         {
-            std::unique_lock<std::mutex> lock(workQueueMutex);
-            if (workQueue.empty()) break; // No more work
+            // std::unique_lock<std::mutex> lock(workQueueMutex);
+            // if (workQueue.empty()) break; // No more work
             chunk_pos = workQueue.front();
             workQueue.pop();
         }

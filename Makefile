@@ -1,13 +1,22 @@
-TIMER_FLAG =
+TIMER_FLAG = 
 COMPILER = g++
 EXEC = main.out
-ALGORITHM =
-INPUT =
+ALGORITHM = -d
+INPUT = 
+
+# tar -xf gcc-13.2.0.tar.gz
+# cd gcc-13.2.0
+# ./contrib/download_prerequisites
+# cd ..
+# mkdir gcc-build
+# cd gcc-build
+# ../gcc-13.2.0/configure --prefix=/opt/gcc-13.2.0 --enable-languages=c,c++ --enable-libstdcxx-backtrace=yes --disable-option-checking
+# make -j$(nproc) 
 
 .PHONY: build run run-simple-intro run-simple-fast run-simple-comb run-runlength-intro run-runlength-fast run-runlength-comb run-octree-intro run-octree-fast run-octree-comb run-decomp3D-intro run-decomp3D-fast titan-linux titan-arch-linux runner-linux
 
 build:
-	${COMPILER} -O3 -pthread -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp src/Decomp3D.cpp
+	${COMPILER} -D_GLIBCXX_DEBUG -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp src/Decomp3D.cpp
 
 run: build
 	./build/main.out < ${INPUT} $(ALGORITHM) $(TIMER_FLAG)

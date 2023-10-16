@@ -5,7 +5,7 @@ class Block
 {
 public:
     int zDimension, yDimension, xDimension;
-    int zStart, yStart, xStart;
+    size_t zStart, yStart, xStart;
 };
 
 #endif
