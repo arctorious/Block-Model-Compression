@@ -92,7 +92,6 @@ protected:
     std::unordered_map<char, std::string>* myTagTable; ///< Pointer to the tag table mapping.
     Dimensions* myDimensions; ///< Pointer to the dimensions object.
     int current_level; ////< Current level of proccessing with refrence o z_parent.
-    
     std::vector<double> volume_tracker;
 
 private:

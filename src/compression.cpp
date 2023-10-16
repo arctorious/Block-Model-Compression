@@ -55,9 +55,10 @@ void Compression::WorkerFunction(int thread_id) {
 
         // Checking compressed parent block volume matches original parent block volume
 
-        if(volume_tracker[thread_id] != myDimensions->x_parent * myDimensions->y_parent * myDimensions->z_parent){
-            std::cout << "Error: Cumulative volume of compressed parent block outputs is incorrect for thread: "<<thread_id<<"\n";
-            std::cout << "64 vs "<< volume_tracker[thread_id] << "\n";
+        double volume = myDimensions->x_parent * myDimensions->y_parent * myDimensions->z_parent;
+        if(volume_tracker[thread_id] != volume){
+            std::cout << "Error: Cumulative volume of compressed parent block output is incorrect for thread: "<<thread_id<<"\n";
+            std::cout << volume << " vs "<< volume_tracker[thread_id] << "\n";
             exit(1);
         }
         else{
@@ -80,4 +81,27 @@ void Compression::PrintOutput(int x_position, int y_position, int z_position, in
     volume_tracker[thread_id] += x_size * y_size * z_size;
 
     std::cout << x_position << "," << y_position << "," << z_position << "," << x_size << "," << y_size << "," << z_size << "," << label << '\n';
+
+    // Check if compressed block that is about to be printed all have the same tag from mySlices
+    int start_z = z_position%myDimensions->z_parent;
+    char tag = (*mySlices)[start_z][y_position][x_position];
+    
+    // std::cout<<start_z<< " " << z_size <<"\n";
+    for(int z = start_z; z<start_z+z_size; z++){
+        // std::cout<<z;
+        for(int y = y_position; y<y_position+y_size; y++){
+            // std::cout<<" "<<y;
+            for(int x = x_position; x<x_position+x_size; x++){
+                // std::cout<<"hello"<<z<<"\n";
+                if ( (*mySlices)[z][y][x] != tag) {
+                    std::cout<<"ERROR: Two or more blocks with different tags are trying to be compressed\n";
+                    exit(1);
+                }
+                
+            
+            }
+
+        }
+    }
+
 }
