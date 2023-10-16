@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
 
-    char algorithm = 'o';
+    char algorithm = 'd';
     bool timerEnabled = false;
 
     for (int i = 1; i < argc; i++){
