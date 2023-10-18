@@ -17,6 +17,8 @@ Compression* StreamProcessor::createCompressionAlgorithm(const char name) {
             return new RunLengthEncoding(&mySlices, &myTagTable, &myDimensions);
         case 'o':
             return new OctreeCompression(&mySlices, &myTagTable, &myDimensions);
+        case 'R':
+            return new Runlength3D(&mySlices, &myTagTable, &myDimensions);
         default:
             return new OctreeCompression(&mySlices, &myTagTable, &myDimensions);
     }

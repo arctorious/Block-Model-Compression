@@ -13,10 +13,10 @@ INPUT =
 # ../gcc-13.2.0/configure --prefix=/opt/gcc-13.2.0 --enable-languages=c,c++ --enable-libstdcxx-backtrace=yes --disable-option-checking
 # make -j$(nproc) 
 
-.PHONY: build run run-simple-intro run-simple-fast run-simple-comb run-runlength-intro run-runlength-fast run-runlength-comb run-octree-intro run-octree-fast run-octree-comb run-decomp3D-intro run-decomp3D-fast titan-linux titan-arch-linux runner-linux
+.PHONY: build run run-simple-intro run-simple-fast run-simple-comb run-runlength-intro run-runlength-fast run-runlength-comb run-octree-intro run-octree-fast run-octree-comb run-decomp3D-intro run-runlength3D-intro run-decomp3D-fast titan-linux titan-arch-linux runner-linux
 
 build:
-	${COMPILER} -D_GLIBCXX_DEBUG -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp src/Decomp3D.cpp
+	${COMPILER} -D_GLIBCXX_DEBUG -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp src/Decomp3D.cpp src/runlength_encoding_3D.cpp
 
 run: build
 	./build/main.out < ${INPUT} $(ALGORITHM) $(TIMER_FLAG)
@@ -50,6 +50,10 @@ run-octree-fast:
 
 run-octree-comb:
 	make run INPUT=build/the_combinatorial_one_42000000_14x10x12.csv ALGORITHM=-o TIMER_FLAG=-t
+
+#RUN RUNLENGTH 3D
+run-runlength3D-intro:
+	make run INPUT=build/the_intro_one_32768_4x4x4.csv ALGORITHM=-R TIMER_FLAG=-t
 
 # RUN DECOMP 3D
 run-decomp3D-intro:
