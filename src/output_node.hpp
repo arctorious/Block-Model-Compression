@@ -1,6 +1,6 @@
 #pragma once
 
-// A struct for storing sub blocks as a start coordinate and lengths of the subblock. 
+// A struct for storing sub blocks as a start coordinate and lengths of the subblock. Reused from LZW compression.
 struct OutputNode
 {
     int myXStart;
