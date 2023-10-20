@@ -63,7 +63,7 @@ void Runlength3D::PrintBlocks(std::vector<std::vector<std::vector<OutputNode*>>>
 
 void Runlength3D::CompressBlock(int x_start, int y_start, int z_start)
 {
-    cout << "Compressing: " << x_start << " " << y_start << " " << z_start << endl;
+    // cout << "Compressing: " << x_start << " " << y_start << " " << z_start << endl;
     // :TODO: Investigate if using a hashmap would get worse performance, if not then use it since it would have less memory usage.
     std::vector<std::vector<std::vector<OutputNode*>>> subBlocks(myDimensions->z_parent, std::vector<std::vector<OutputNode*>>(myDimensions->y_parent, std::vector<OutputNode*>(myDimensions->x_parent,nullptr)));
     
