@@ -9,7 +9,7 @@ StreamProcessor::StreamProcessor(char alg){
 
 Compression* StreamProcessor::createCompressionAlgorithm(const char name) {
     switch (name) {
-        case 'd':
+        case '3':
             return new Decomp3D(&mySlices, &myTagTable, &myDimensions);
         case 's':
             return new SimpleCompression(&mySlices, &myTagTable, &myDimensions);
