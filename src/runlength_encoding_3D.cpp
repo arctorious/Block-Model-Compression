@@ -55,7 +55,7 @@ bool isContainedIn(OutputNode& A, OutputNode& B)
 }
 
 
-// Prints all blocks that aren't contained within other blocks in linear time.
+// Prints all blocks that aren't contained within other blocks in linear time using a monotonic stack.
 void Runlength3D::PrintBlocks(std::vector<std::vector<std::vector<OutputNode*>>>& Blocks)
 {
     std::stack<OutputNode> monotonicStack;
@@ -135,8 +135,6 @@ void Runlength3D::CompressBlock(int x_start, int y_start, int z_start)
                 // If next tagtype on row is same as the tagtype of the current sub block, map to that subBlock.
                 if(key == start->type) 
                 {
-                    // cout << "expanding " << x << y << z << endl;
-                    // PrintBlock(*start);
                     start->xLen++;
                     subBlocks[z][y][x] = start;
                     // Handle issue when we encounter new block at the end of a row. 
@@ -145,21 +143,10 @@ void Runlength3D::CompressBlock(int x_start, int y_start, int z_start)
                 // Check if it can be matched with previous row.
                 if(y>0)
                 {
-                    /*
-                    AAAA
-                    AAAB
-                    AAAA
-
-                    issue was that merging doesn't occur as the previous pointers are still pointing to where start was pointing to. 
-                    */
-                    // cout << "checking" << endl;
+                    // Issue was that merging doesn't occur as the previous pointers are still pointing to where start was pointing to. 
                     auto& prevRow = (x == myDimensions->x_parent-1) ? subBlocks[z][y-1][x] : subBlocks[z][y-1][x-1];
-                    // PrintBlock(*prevRow);
                     if(prevRow->type == start->type && prevRow->xLen == start->xLen && prevRow->myXStart == start->myXStart)
                     {
-                        // cout << "merging in y at : " << x << y << z << endl;
-                        // PrintBlock(*start);
-                        // PrintBlock(*prevRow);
                         prevRow->yLen++;
                         subBlocks[z][y][start->myXStart-x_start + start->xLen-1] = prevRow;
                         start = prevRow;
@@ -169,20 +156,14 @@ void Runlength3D::CompressBlock(int x_start, int y_start, int z_start)
                     if(z > 0)
                     {
                         auto& prevSlice = (x == myDimensions->x_parent-1) ? subBlocks[z-1][y-1][x] : subBlocks[z-1][y-1][x-1];
-                        // cout << "checking to merge at: " << x << y << z << endl;
-                        // PrintBlock(*prevRow);
-                        // PrintBlock(*prevSlice);
                         if((prevRow->type       == prevSlice->type)
                         && (prevRow->myXStart   == prevSlice->myXStart)
                         && (prevRow->myYStart   == prevSlice->myYStart) 
                         && (prevRow->xLen       == prevSlice->xLen)
                         && (prevRow->yLen       == prevSlice->yLen))
                         {
-                            // cout << "Merging z at : " << x << y << z << endl;
                             prevSlice->zLen++;
                             prevRow = prevSlice;
-                            // PrintBlock(*prevRow);
-                            // PrintBlock(*prevSlice);
                         }
                     }
                 }
