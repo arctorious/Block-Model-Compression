@@ -9,12 +9,16 @@ StreamProcessor::StreamProcessor(char alg){
 
 Compression* StreamProcessor::createCompressionAlgorithm(const char name) {
     switch (name) {
+        case '3':
+            return new Decomp3D(&mySlices, &myTagTable, &myDimensions);
         case 's':
             return new SimpleCompression(&mySlices, &myTagTable, &myDimensions);
         case 'r':
             return new RunLengthEncoding(&mySlices, &myTagTable, &myDimensions);
         case 'o':
             return new OctreeCompression(&mySlices, &myTagTable, &myDimensions);
+        case 'R':
+            return new Runlength3D(&mySlices, &myTagTable, &myDimensions);
         case 'd':
             return new DynamicProgrammingCompression(&mySlices, &myTagTable, &myDimensions);
         default:
