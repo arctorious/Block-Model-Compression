@@ -1,13 +1,22 @@
-TIMER_FLAG =
+TIMER_FLAG = 
 COMPILER = g++
 EXEC = main.out
-ALGORITHM =
-INPUT =
+ALGORITHM = -d
+INPUT = 
 
-.PHONY: build run run-simple-intro run-simple-fast run-simple-comb run-runlength-intro run-runlength-fast run-runlength-comb run-octree-intro run-octree-fast run-octree-comb titan-linux titan-arch-linux runner-linux
+# tar -xf gcc-13.2.0.tar.gz
+# cd gcc-13.2.0
+# ./contrib/download_prerequisites
+# cd ..
+# mkdir gcc-build
+# cd gcc-build
+# ../gcc-13.2.0/configure --prefix=/opt/gcc-13.2.0 --enable-languages=c,c++ --enable-libstdcxx-backtrace=yes --disable-option-checking
+# make -j$(nproc) 
+
+.PHONY: build run run-simple-intro run-simple-fast run-simple-comb run-runlength-intro run-runlength-fast run-runlength-comb run-octree-intro run-octree-fast run-octree-comb run-decomp3D-intro run-runlength3D-intro run-decomp3D-fast titan-linux titan-arch-linux runner-linux
 
 build:
-	${COMPILER} -O3 -std=c++11 -pthread -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp src/dp_compression.cpp
+	${COMPILER} -O3 -std=c++11 -pthread -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp src/dp_compression.cpp src/Decomp3D.cpp src/runlength_encoding_3D.cpp
 
 run: build
 	./build/main.out < ${INPUT} $(ALGORITHM) $(TIMER_FLAG)
@@ -41,6 +50,20 @@ run-octree-fast:
 
 run-octree-comb:
 	make run INPUT=build/the_combinatorial_one_42000000_14x10x12.csv ALGORITHM=-o TIMER_FLAG=-t
+
+#RUN RUNLENGTH 3D
+run-runlength3D-intro:
+	make run INPUT=build/the_intro_one_32768_4x4x4.csv ALGORITHM=-R TIMER_FLAG=-t
+
+# RUN DECOMP 3D
+run-decomp3D-intro:
+	make run INPUT=build/the_intro_one_32768_4x4x4.csv ALGORITHM=-3 TIMER_FLAG=-t
+
+run-decomp3D-fast:
+	make run INPUT=build/the_fast_one_376000_2x2x2.csv ALGORITHM=-3 TIMER_FLAG=-t
+
+run-decomp3D-comb:
+	make run INPUT=build/the_combinatorial_one_42000000_14x10x12.csv ALGORITHM=-3 TIMER_FLAG=-t
 
 # RUN DP
 run-dp-intro:
