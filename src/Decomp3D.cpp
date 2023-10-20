@@ -52,9 +52,10 @@ void Decomp3D::CompressBlock(int x_start, int y_start, int z_start)
     int x_end = x_start + myDimensions->x_parent;
     int y_end = y_start + myDimensions->y_parent;
     int z_end = z_start + myDimensions->z_parent;
+    for(auto it = (*myTagTable).begin(); it !=(*myTagTable).end(); it++){
+        auto blockType = it->first;
+        auto tag = it->second;
 
-    for (const auto &[blockType, tag] : (*myTagTable))
-    {
         // std::cout.flush();
         // std::stringstream out;
 
@@ -128,22 +129,19 @@ std::vector<Block *> Decomp3D::CompressBlockType(int x_start, int y_start, int z
         //           << "\r\n";
         removeUnusedSeparators(weights, separators);
 
-        for (int i = 0; i < separators.size(); i++)
-            separators[i]->orientation == 0;
-
         if (separators.empty())
             break;
 
         // std::cout << "3.2 Finding maxWeighted Separators"
         //           << "\r\n";
         int maxWeight = INT_MIN;
-        for (int i = 0; i < weights.size(); i++)
+        for (unsigned int i = 0; i < weights.size(); i++)
         {
             maxWeight = std::max(maxWeight, weights[i]);
         }
 
         std::vector<Separator *> max_weighted_separators;
-        for (int i = 0; i < weights.size(); i++)
+        for (unsigned int i = 0; i < weights.size(); i++)
         {
             if (weights[i] == maxWeight)
             {
@@ -1295,7 +1293,7 @@ std::vector<int> Decomp3D::calWeight(std::vector<Separator *> &separators, int_4
 void Decomp3D::removeUnusedSeparators(std::vector<int> &weight, std::vector<Separator *> &separators)
 {
     int deleteCount = 0;
-    for (int i = 0; i < separators.size(); i++)
+    for (unsigned int i = 0; i < separators.size(); i++)
     {
         if (weight[i] == INT_MIN)
         {
@@ -1359,9 +1357,8 @@ bool Decomp3D::ifIntersect(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [y, weight] : intersection_coordinates)
-        {
-            if (weight == 0)
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;            if (weight == 0)
                 return true;
         }
     }
@@ -1403,8 +1400,8 @@ bool Decomp3D::ifIntersect(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [x, weight] : intersection_coordinates)
-        {
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            int weight = it->second;
             if (weight == 0)
                 return true;
         }
@@ -1450,9 +1447,8 @@ bool Decomp3D::ifIntersect(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [y, weight] : intersection_coordinates)
-        {
-            if (weight == 0)
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;            if (weight == 0)
                 return true;
         }
     }
@@ -1494,9 +1490,8 @@ bool Decomp3D::ifIntersect(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [z, weight] : intersection_coordinates)
-        {
-            if (weight == 0)
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;            if (weight == 0)
             {
                 return true;
             }
@@ -1542,8 +1537,8 @@ bool Decomp3D::ifIntersect(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [x, weight] : intersection_coordinates)
-        {
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            int weight = it->second;
             if (weight == 0)
                 return true;
         }
@@ -1587,9 +1582,8 @@ bool Decomp3D::ifIntersect(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [z, weight] : intersection_coordinates)
-        {
-            if (weight == 0)
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;            if (weight == 0)
                 return true;
         }
     }
@@ -1602,9 +1596,9 @@ std::vector<std::vector<int>> Decomp3D::createGraph(std::vector<Separator *> &se
 {
     std::vector<std::vector<int>> graph(separators.size());
 
-    for (int i = 0; i < separators.size(); i++)
+    for (unsigned int i = 0; i < separators.size(); i++)
     {
-        for (int j = i + 1; j < separators.size(); j++)
+        for (unsigned int j = i + 1; j < separators.size(); j++)
         {
             if (separators[i]->orientation != separators[j]->orientation && ifIntersect(separators[i], separators[j]))
             {
@@ -1620,7 +1614,7 @@ std::vector<std::vector<int>> Decomp3D::createGraph(std::vector<Separator *> &se
 std::vector<int> Decomp3D::maxIS(std::vector<std::vector<int>> &graph)
 {
     std::vector<std::vector<int>> degree;
-    for (int i = 0; i < graph.size(); i++)
+    for (int i = 0; i < (int)graph.size(); i++)
     {
         degree.push_back({(int)graph[i].size(), i});
     }
@@ -1633,7 +1627,7 @@ std::vector<int> Decomp3D::maxIS(std::vector<std::vector<int>> &graph)
               });
 
     std::vector<int> set;
-    for (int i = 0; i < degree.size(); i++)
+    for (unsigned int i = 0; i < degree.size(); i++)
     {
 
         bool inSet = false;
@@ -1744,8 +1738,6 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
 
     for (Separator *separator : separators)
     {
-        int concaveEdgeNumber = 0;
-        int perpendicularEdgeNumber = 0;
 
         if (separator->orientation == xyPlane)
         {
@@ -1899,7 +1891,7 @@ void Decomp3D::removeEdges(std::vector<CEdge *> &edges, std::vector<Separator *>
 
     int deleteCount = 0;
 
-    for (int i = 0; i < edges.size(); i++)
+    for (unsigned int i = 0; i < edges.size(); i++)
     {
         
         if (edges[i] == nullptr)
@@ -2010,9 +2002,8 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [y, weight] : intersection_coordinates)
-        {
-            if (weight.first == 2 && weight.second == -2)
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;            if (weight.first == 2 && weight.second == -2)
                 return true;
         }
     }
@@ -2054,8 +2045,8 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [x, weight] : intersection_coordinates)
-        {
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;
             if (weight.first == 2 && weight.second == -2)
                 return true;
         }
@@ -2103,9 +2094,9 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [y, weight] : intersection_coordinates)
-        {
 
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;
             if (weight.first == 2 && weight.second == -2)
             {
 
@@ -2151,9 +2142,8 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [z, weight] : intersection_coordinates)
-        {
-            if (weight.first == 2 && weight.second == -2)
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;            if (weight.first == 2 && weight.second == -2)
             {
                 return true;
             }
@@ -2199,8 +2189,8 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [x, weight] : intersection_coordinates)
-        {
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;
             if (weight.first == 2 && weight.second == -2)
                 return true;
         }
@@ -2244,9 +2234,8 @@ bool Decomp3D::ifIntersect_splitting(Separator *current, Separator *comparsion)
             }
         }
 
-        for (auto [z, weight] : intersection_coordinates)
-        {
-            if (weight.first == 2 && weight.second == -2)
+        for(auto it = intersection_coordinates.begin(); it != intersection_coordinates.end(); it++){
+            auto weight = it->second;            if (weight.first == 2 && weight.second == -2)
                 return true;
         }
     }
@@ -2266,7 +2255,7 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
         std::vector<int> zAxis;
         std::vector<std::vector<Separator *>> newSeparators;
 
-        for (int j = 0; j < finalSeparator.size(); j++)
+        for (unsigned int j = 0; j < finalSeparator.size(); j++)
         {
 
             if (separators[i]->orientation != finalSeparator[j]->orientation)
@@ -2385,9 +2374,9 @@ std::vector<Separator *> Decomp3D::splitSeparators(std::vector<Separator *> &sep
         separators[i] = newSeparators[0][0];
         newSep.push_back(newSeparators[0][0]);
 
-        for (int m = 0; m < newSeparators.size(); m++)
+        for (size_t m = 0; m < newSeparators.size(); m++)
         {
-            for (int n = 0; n < newSeparators[m].size(); n++)
+            for (size_t n = 0; n < newSeparators[m].size(); n++)
             {
 
                 if ((m == 0 && n == 0) || newSeparators[m][n] == nullptr)
@@ -2419,7 +2408,7 @@ bool Decomp3D::ifIntersect_edge(CEdge *edge, Separator *separator)
     if (edge->orientation == xyPlane)
     {
         // dont care about the the last since it can't be intersecting
-        for (int i = 0; i < edge->indices.size() - 1; i++)
+        for (unsigned int i = 0; i < edge->indices.size() - 1; i++)
         {
             // check the 4 blocks around the edge to see if its in the separator,
             // if it this, then the edge is intersecting the separator so you
@@ -2433,7 +2422,7 @@ bool Decomp3D::ifIntersect_edge(CEdge *edge, Separator *separator)
     else if (edge->orientation == zyPlane)
     {
         // dont care about the the last since it can't be intersecting
-        for (int i = 0; i < edge->indices.size() - 1; i++)
+        for (unsigned int i = 0; i < edge->indices.size() - 1; i++)
         {
             // check the 4 blocks around the edge to see if its in the separator,
             // if it this, then the edge is intersecting the separator so you
@@ -2448,7 +2437,7 @@ bool Decomp3D::ifIntersect_edge(CEdge *edge, Separator *separator)
     else if (edge->orientation == zxPlane)
     {
         // dont care about the the last since it can't be intersecting
-        for (int i = 0; i < edge->indices.size() - 1; i++)
+        for (unsigned int i = 0; i < edge->indices.size() - 1; i++)
         {
             // check the 4 blocks around the edge to see if its in the separator,
             // if it this, then the edge is intersecting the separator so you
@@ -2475,7 +2464,7 @@ std::vector<CEdge *> Decomp3D::splitEdges(std::vector<CEdge *> &CEdges, std::vec
     for (int i = 0; i < edgesSize; i++)
     {
         std::vector<int> splitAxis;
-        for (int j = 0; j < finalSeparators.size(); j++)
+        for (unsigned int j = 0; j < finalSeparators.size(); j++)
         {
             // current separator's orientation +2 mode 3 is the orientation
             // of the edge that is perpendicular to this separator
@@ -2506,7 +2495,7 @@ std::vector<CEdge *> Decomp3D::splitEdges(std::vector<CEdge *> &CEdges, std::vec
 
         std::vector<CEdge *> newEdges(splitAxis.size() + 1, nullptr);
 
-        for (int k = 0; k < CEdges[i]->indices.size(); k++)
+        for (unsigned int k = 0; k < CEdges[i]->indices.size(); k++)
         {
             int index = std::upper_bound(splitAxis.begin(), splitAxis.end(), CEdges[i]->indices[k]) - splitAxis.begin();
             if (newEdges[index] == nullptr)
@@ -2543,7 +2532,7 @@ std::vector<CEdge *> Decomp3D::splitEdges(std::vector<CEdge *> &CEdges, std::vec
 
         newEdge.push_back(newEdges[0]);
 
-        for (int k = 1; k < newEdges.size(); k++)
+        for (unsigned int k = 1; k < newEdges.size(); k++)
             if (newEdges[k] != nullptr)
             {
                 insert_to_map(newEdges[k], CEdges.size(), concaveEdgeMap);
@@ -2666,7 +2655,7 @@ void Decomp3D::mergeSingle(Block *cur, std::vector<Block *> &blocks)
     while (merged)
     {
         merged = false;
-        for (int i = 0; i < blocks.size(); i++)
+        for (unsigned int i = 0; i < blocks.size(); i++)
         {
             if (blocks[i] == nullptr)
                 continue;
@@ -2697,7 +2686,7 @@ void Decomp3D::mergeSingle(Block *cur, std::vector<Block *> &blocks)
     while (merged)
     {
         merged = false;
-        for (int i = 0; i < blocks.size(); i++)
+        for (unsigned int i = 0; i < blocks.size(); i++)
         {
             if (blocks[i] == nullptr)
                 continue;
@@ -2727,7 +2716,7 @@ void Decomp3D::mergeSingle(Block *cur, std::vector<Block *> &blocks)
     while (merged)
     {
         merged = false;
-        for (int i = 0; i < blocks.size(); i++)
+        for (unsigned int i = 0; i < blocks.size(); i++)
         {
             if (blocks[i] == nullptr)
                 continue;
@@ -2755,7 +2744,7 @@ void Decomp3D::mergeSingle(Block *cur, std::vector<Block *> &blocks)
 
 void Decomp3D::mergeAdjacentBlock(std::vector<Block *> &blocks)
 {
-    for (int i = 0; i < blocks.size(); i++)
+    for (unsigned int i = 0; i < blocks.size(); i++)
     {
         if (blocks[i] == nullptr)
             continue;

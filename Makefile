@@ -16,7 +16,7 @@ INPUT =
 .PHONY: build run run-simple-intro run-simple-fast run-simple-comb run-runlength-intro run-runlength-fast run-runlength-comb run-octree-intro run-octree-fast run-octree-comb run-decomp3D-intro run-runlength3D-intro run-decomp3D-fast titan-linux titan-arch-linux runner-linux
 
 build:
-	${COMPILER} -D_GLIBCXX_DEBUG -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp src/Decomp3D.cpp src/runlength_encoding_3D.cpp
+	${COMPILER} -D_GLIBCXX_DEBUG -pthread -Wall -o build/${EXEC} src/main.cpp src/compression.cpp src/stream_processor.cpp src/simple_compression.cpp src/runlength_encoding.cpp src/octree_node.cpp src/octree_compression.cpp src/Decomp3D.cpp src/runlength_encoding_3D.cpp
 
 run: build
 	./build/main.out < ${INPUT} $(ALGORITHM) $(TIMER_FLAG)
