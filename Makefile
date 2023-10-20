@@ -65,6 +65,16 @@ run-decomp3D-fast:
 run-decomp3D-comb:
 	make run INPUT=build/the_combinatorial_one_42000000_14x10x12.csv ALGORITHM=-3 TIMER_FLAG=-t
 
+# RUN DP
+run-dp-intro:
+	make run INPUT=build/the_intro_one_32768_4x4x4.csv ALGORITHM=-d TIMER_FLAG=-t
+
+run-dp-fast:
+	make run INPUT=build/the_fast_one_376000_2x2x2.csv ALGORITHM=-d TIMER_FLAG=-t
+
+run-dp-comb:
+	make run INPUT=build/the_combinatorial_one_42000000_14x10x12.csv ALGORITHM=-d TIMER_FLAG=-t
+
 # TITAN BUILDS
 titan-linux:
 	make COMPILER="x86_64-w64-mingw32-g++-posix -static" EXEC=BLOCK11.exe
