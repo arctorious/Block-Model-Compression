@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
         // Initialize and process the stream
         StreamProcessor myStreamProcessor(algorithm);
-        myStreamProcessor.StartProcessing();
+        long double compressionRate = myStreamProcessor.StartProcessing();
 
         // Stop the timer
         auto stop = std::chrono::high_resolution_clock::now();
@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 
         std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
+        std::cout << "Compression rate: " << compressionRate*100 << "%" << std::endl;
     } else {
         // Initialize and process the stream without timing
         StreamProcessor myStreamProcessor(algorithm);

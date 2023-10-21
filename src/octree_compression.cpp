@@ -14,9 +14,9 @@ void OctreeCompression::CompressBlock(int x_start, int y_start, int z_start) {
     q.push(std::make_tuple(z_start,
                            y_start,
                            x_start,
-                           z_start + myDimensions->z_parent - 1,
-                           y_start + myDimensions->y_parent - 1,
-                           x_start + myDimensions->x_parent - 1));
+                           z_start + myDimensions->z_parent-1,
+                           y_start + myDimensions->y_parent-1,
+                           x_start + myDimensions->x_parent-1));
     
     while (!q.empty()) {
         OctreeNode node(q.front(), mySlices);

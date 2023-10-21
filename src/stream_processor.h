@@ -44,7 +44,7 @@ public:
      *
      * Calls other functions which store the input into data structures
      */
-    void StartProcessing();
+    long double StartProcessing();
 
     /**
      * @brief Creates a compression algorithm object based on the given name.

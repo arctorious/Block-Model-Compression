@@ -27,8 +27,13 @@ Compression* StreamProcessor::createCompressionAlgorithm(const char name) {
     }
 }
 
-void StreamProcessor::StartProcessing(){
+long double StreamProcessor::StartProcessing(){
     ReadConfiguration();
+
+    int numPrintedSubBlocks = myCompressor->getNumSubBlocks();
+    int totalSubBlocks = myDimensions.x_count * myDimensions.y_count * myDimensions.z_count;
+
+    return (long double)(totalSubBlocks - numPrintedSubBlocks)/totalSubBlocks;
 }
 
 void StreamProcessor::ReadConfiguration(){
@@ -106,7 +111,8 @@ void StreamProcessor::ReadSlices(){
         mySlices.push_back(currentSlice);
     }
 
-    /*
+
+     /*
     // Print to verify
     for (const auto &slice : mySlices) {
         std::cout << "Slice:\n";

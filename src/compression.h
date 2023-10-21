@@ -12,6 +12,8 @@
 #include <string>
 #include <queue>
 #include <mutex>
+#include <map>
+#include <thread>
 #include "dimensions.hpp"
 
 /**
@@ -82,6 +84,8 @@ public:
      */
     void PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label);
 
+    int getNumSubBlocks() { return numSubBlocks; } ///< Returns the number of sub-blocks printed.
+
     /**
      * @brief Virtual destructor.
      */
@@ -92,6 +96,7 @@ protected:
     std::unordered_map<char, std::string>* myTagTable; ///< Pointer to the tag table mapping.
     Dimensions* myDimensions; ///< Pointer to the dimensions object.
     int current_level; ////< Current level of proccessing with refrence o z_parent.
+    std::map<std::thread::id, int> volume_tracker;
 
 private:
     int x_start; ///< Starting x coordinate.
@@ -102,4 +107,6 @@ private:
     std::mutex coutMutex; ///< Mutex to synchronize writes to std::cout
 
     std::queue<std::vector<int>> workQueue; ///< Queue to hold blocks to be processed.
+
+    int numSubBlocks = 0; ///< Number of sub-blocks printed.
 };

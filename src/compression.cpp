@@ -48,6 +48,27 @@ void Compression::WorkerFunction() {
             workQueue.pop();
         }
         CompressBlock(chunk_pos[0], chunk_pos[1], chunk_pos[2]);
+
+       {
+        
+        std::lock_guard<std::mutex> lock(coutMutex);
+
+        // Checking compressed parent block volume matches original parent block volume
+
+        int volume = myDimensions->x_parent * myDimensions->y_parent * myDimensions->z_parent;
+        
+        if(volume_tracker[std::this_thread::get_id()] != volume){
+            std::cout << "Error: Cumulative volume of compressed parent block output is incorrect for thread: "<<std::this_thread::get_id()<<"\n";
+            std::cout << volume << " vs "<< volume_tracker[std::this_thread::get_id()] << "\n";
+            exit(1);
+        }
+        else{
+            volume_tracker[std::this_thread::get_id()] = 0;
+        }
+
+       }
+        
+
     }
 }
 
@@ -57,5 +78,27 @@ std::string Compression::getTag(char key){
 
 void Compression::PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label) {
     std::lock_guard<std::mutex> lock(coutMutex);
+
+    volume_tracker[std::this_thread::get_id()] += x_size * y_size * z_size;
+
     std::cout << x_position << "," << y_position << "," << z_position << "," << x_size << "," << y_size << "," << z_size << "," << label << '\n';
+
+    // Check if compressed block that is about to be printed all have the same tag from mySlices
+    int start_z = z_position%myDimensions->z_parent;
+    char tag = (*mySlices)[start_z][y_position][x_position];
+    
+    for(int z = start_z; z<start_z+z_size; z++){
+        for(int y = y_position; y<y_position+y_size; y++){
+            for(int x = x_position; x<x_position+x_size; x++){
+                if ( (*mySlices)[z][y][x] != tag) {
+                    std::cout<<"ERROR: Two or more blocks with different tags are trying to be compressed\n";
+                    exit(1);
+                }
+                
+            
+            }
+
+        }
+    }
+    numSubBlocks++;
 }
