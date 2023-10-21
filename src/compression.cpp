@@ -29,7 +29,6 @@ void Compression::Compress(int z_start) {
     std::vector<std::thread> threads;
     for (unsigned i = 0; i < num_threads; ++i) {
         threads.emplace_back(&Compression::WorkerFunction, this); // Use the new member function
-        // volume_tracker.push_back(0);
     }
 
     // Join the threads
