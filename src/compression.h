@@ -84,6 +84,8 @@ public:
      */
     void PrintOutput(int x_position, int y_position, int z_position, int x_size, int y_size, int z_size, const std::string& label);
 
+    int getNumSubBlocks() { return numSubBlocks; } ///< Returns the number of sub-blocks printed.
+
     /**
      * @brief Virtual destructor.
      */
@@ -105,4 +107,6 @@ private:
     std::mutex coutMutex; ///< Mutex to synchronize writes to std::cout
 
     std::queue<std::vector<int>> workQueue; ///< Queue to hold blocks to be processed.
+
+    int numSubBlocks = 0; ///< Number of sub-blocks printed.
 };

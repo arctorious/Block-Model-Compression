@@ -101,5 +101,5 @@ void Compression::PrintOutput(int x_position, int y_position, int z_position, in
 
         }
     }
-
+    numSubBlocks++;
 }
