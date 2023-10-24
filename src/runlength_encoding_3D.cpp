@@ -3,7 +3,6 @@
 #include <unordered_set>
 #include <iostream>
 #include <stack>
-using namespace std;
 
 
 struct Block
@@ -25,7 +24,7 @@ Runlength3D::Runlength3D(std::vector<std::vector<std::vector<char>>>* Slices,
 
 void Runlength3D::PrintBlock(OutputNode& Node)
 {
-    PrintOutput(Node.myXStart,Node.myYStart,Node.myZStart,Node.xLen,Node.yLen,Node.zLen,(*myTagTable)[Node.type]);
+    PrintOutput(Node.myXStart,Node.myYStart,Node.myZStart + current_level,Node.xLen,Node.yLen,Node.zLen,(*myTagTable)[Node.type]);
 }
 
 // Define a custom hash function for OutputNode
@@ -39,7 +38,7 @@ struct OutputNodeHash
         std::size_t h2 = std::hash<int>{}(node.myYStart);
         std::size_t h3 = std::hash<int>{}(node.myZStart);
         std::size_t h4 = std::hash<char>{}(node.type);
-        return h1 ^ h2 ^ h3 ^ h4 ;
+        return h1 ^ h2 ^ h3 ^ h4;
     }
 };
 
