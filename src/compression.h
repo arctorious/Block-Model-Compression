@@ -15,6 +15,7 @@
 #include <map>
 #include <thread>
 #include "dimensions.hpp"
+#include "outputNode.hpp"
 
 /**
  * @class Compression
@@ -38,7 +39,9 @@ public:
     Compression(std::vector<std::vector<std::vector<char>>>* Slices,
                 std::unordered_map<char, std::string>* TagTable,
                 Dimensions* Dimensions);
-    
+    // #ifdef mapgen
+    // std::vector<std::vector<OutputNode>> myOutputs;
+    // #endif
     /**
      * @brief Starts the compression process.
      *
