@@ -1,3 +1,8 @@
+## Block Compression Models
+Block compression models are a collection of various compression algorithms for the compressing of 3D blocks, the algorithms includes 3D runlength encoding, 3D decomposition compression, orctree and etc. 
+
+To see which algorithm fits the best to your need, please check the wiki page. 
+
 ## Build
 
 To build for **Linux** system executable:
