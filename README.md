@@ -1,7 +1,15 @@
 ## Block Compression Models
-Block compression models are a collection of various compression algorithms for the compressing of 3D blocks, the algorithms includes 3D runlength encoding, 3D decomposition compression, orctree and etc. 
+Block compression models are a collection of various compression algorithms for the compressing of 3D blocks, the algorithms includes Dynamic Programming Compression, 3D decomposition compression, orctree and etc. 
 
-To see which algorithm fits the best to your need, please check the wiki page. 
+Please checkout the wiki page for the description and the implementations for each algorithm:
+
+- [3D Decomposition Compression](https://github.com/arctorious/Block-Model-Compression/wiki/3D-Decomposition)
+
+- [Dynamic Programming Compression](https://github.com/arctorious/Block-Model-Compression/wiki/Dynamic-Programming)
+  
+- [Octree Compression](https://github.com/arctorious/Block-Model-Compression/wiki/Octree-compression)
+
+- [Lempel Ziv Welch integration](https://github.com/arctorious/Block-Model-Compression/wiki/Lempel-Ziv-Welch-integration)
 
 ## Build
 
